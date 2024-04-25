@@ -25,6 +25,10 @@ scoped[CInfinityLoci]
 
 -- define a type Hom A B of C^∞-Ring homomorphisms (A: C^∞-Ring α) to (B: C^∞-Ring β)
 
+-- theorem saying that every C^∞-Ring is an instance of an ℝ-algebra
+
+-- theorem saying that C^∞-Ring homomorphism is an ℝ-algebra homomorphism
+
 -- instance struct (n : ℕ) : C^∞-Ring C^∞(𝓡 n, ℝ)
 
 -- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(𝓡 n, ℝ) A, (∀ i: Fin n, Φ (π i) = a i )
