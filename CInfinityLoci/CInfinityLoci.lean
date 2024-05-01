@@ -1,25 +1,27 @@
-import Mathlib.Geometry.Manifold.Instances.Real
+import Mathlib.Analysis.Calculus.ContDiff.Defs
+import Mathlib.Analysis.InnerProductSpace.PiL2
 
 namespace CInfinityLoci
 
 variable (n m : ℕ)
 
-scoped[CInfinityLoci]
-  notation "𝓡 " n =>
-    (modelWithCornersSelf ℝ (EuclideanSpace ℝ (Fin n)) :
-      ModelWithCorners ℝ (EuclideanSpace ℝ (Fin n)) (EuclideanSpace ℝ (Fin n)))
+notation "ℝ^"n => EuclideanSpace ℝ (Fin n)
 
-#check 𝓡 n
+notation "C^∞(ℝ^"n", ℝ^"m")" => {f: EuclideanSpace ℝ (Fin n) → EuclideanSpace ℝ (Fin m) // ContDiff ℝ (⊤ : ℕ∞) f }
 
-#check C^∞(𝓡 n; 𝓡 m) -- How to get this to work?
+#check C^∞(ℝ^n, ℝ^m)
 
+-- How does one write an element with type EuclideanSpace ℝ (Fin n)?
+-- How does one tell lean that the composition defines a map C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)?
+-- How does one show that the coordinate projections ℝ^n → ℝ are elements of C^∞(ℝ^n, ℝ^1)?
+-- How does one access the unique element of EuclideanSpace ℝ (Fin 0), or of the type (Fin 0) → α more generally?
 
 -- Outline:
 
 -- Define structure of a C^∞-Ring α (a C^∞-Ring taking values in the type α)
--- structure C^∞-Ring (α: Type*) where
---   intrprt : ∀ {n m: ℕ} (f : C^∞(𝓡 n; 𝓡 m)), (Fin n → α) → (Fin m → α)
---   fnctr : ∀ {n m k: ℕ} (f : C^∞(𝓡 n; 𝓡 m)) (g : C^∞(𝓡 m; 𝓡 k)), ... (something saying intrprt (f ∘ g) = (intrprt f) ∘ (intrprt g))
+structure CinftyRing (α: Type*) where
+  intrprt : ∀ {n m: ℕ} (f : C^∞(ℝ^n, ℝ^m)), (Fin n → α) → (Fin m → α)
+--   fnctr : ∀ {n m k: ℕ} (f : C^∞(ℝ^n, ℝ^m)) (g : C^∞(ℝ^m, ℝ^k)), ... (something saying intrprt (f ∘ g) = (intrprt f) ∘ (intrprt g))
 --   proj : ... (something saying that intrprt takes projections ℝ^n → ℝ onto the ith factor to projections (Fin n → α) → α onto the ith factor)
 
 
