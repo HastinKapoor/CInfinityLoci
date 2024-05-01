@@ -31,13 +31,13 @@ structure CinftyRing (α: Type*) where
 
 -- theorem saying that C^∞-Ring homomorphism is an ℝ-algebra homomorphism
 
--- instance struct (n : ℕ) : C^∞-Ring C^∞(𝓡 n, ℝ)
+-- instance struct (n : ℕ) : C^∞-Ring C^∞(ℝ^n, ℝ^1)
 
 -- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(𝓡 n, ℝ) A, (∀ i: Fin n, Φ (π i) = a i )
--- where π i : C^∞(𝓡 n, ℝ) is the projection ℝ^n → ℝ onto the ith factor
+-- where π i : C^∞(ℝ^n, ℝ^1) is the projection ℝ^n → ℝ onto the ith factor
 
 
--- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(𝓡 n, ℝ) A), Surjective Φ
+-- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(ℝ^n, ℝ^1) A), Surjective Φ
 
 -- prove that if A is a C^∞-Ring and I is an ideal of A, then A/I has a C^∞-Ring structure such that the projection A → A/I is a C^∞-Ring homomorphism
 
