@@ -22,10 +22,10 @@ notation "C^∞(ℝ^"n", ℝ^"m")" => {f: EuclideanSpace ℝ (Fin n) → Euclide
 structure CinftyRing (α: Type*) where
   intrprt : ∀ {n m: ℕ} (f : C^∞(ℝ^n, ℝ^m)), (Fin n → α) → (Fin m → α)
 --   fnctr : ∀ {n m k: ℕ} (f : C^∞(ℝ^n, ℝ^m)) (g : C^∞(ℝ^m, ℝ^k)), ... (something saying intrprt (f ∘ g) = (intrprt f) ∘ (intrprt g))
---   proj : ... (something saying that intrprt takes projections ℝ^n → ℝ onto the ith factor to projections (Fin n → α) → α onto the ith factor)
+--   proj : ... something saying that intrprt takes projections ℝ^n → ℝ onto the ith factor to fun (a : Fin n → α) → (a i : α)
 
 
--- define a type Hom A B of C^∞-Ring homomorphisms (A: C^∞-Ring α) to (B: C^∞-Ring β)
+-- define a type/structure/attribute Hom A B of C^∞-Ring homomorphisms (A: C^∞-Ring α) to (B: C^∞-Ring β)
 
 -- theorem saying that every C^∞-Ring is an instance of an ℝ-algebra
 
