@@ -27,9 +27,9 @@ structure CinftyRing (α: Type*) where
 
 -- define a type/structure/attribute Hom A B of C^∞-Ring homomorphisms (A: C^∞-Ring α) to (B: C^∞-Ring β)
 
--- theorem saying that every C^∞-Ring is an instance of an ℝ-algebra
+-- theorem saying that every C^∞-Ring is an instance of a commutative ℝ-algebra
 
--- theorem saying that C^∞-Ring homomorphism is an ℝ-algebra homomorphism
+-- theorem saying that C^∞-Ring homomorphism is a unital ℝ-algebra homomorphism
 
 -- instance struct (n : ℕ) : C^∞-Ring C^∞(ℝ^n, ℝ^1)
 
