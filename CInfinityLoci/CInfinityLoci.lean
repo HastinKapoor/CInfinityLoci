@@ -5,11 +5,10 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 
 variable (n m : ℕ)
 
+notation A"^"n => Fin n → A
 notation "ℝ^"n => EuclideanSpace ℝ (Fin n)
 notation "C^∞(ℝ^"n", ℝ^"m")" => {f: (ℝ^n) → (ℝ^m) // ContDiff ℝ ⊤ f }
 notation "C^∞(ℝ^"n")" => C^∞(ℝ^n, ℝ^1)
-
-notation A"^"n => Fin n → A
 
 -- variable (f : C^∞(ℝ^n, ℝ^m))
 -- #check f.1
@@ -19,32 +18,29 @@ notation A"^"n => Fin n → A
 -- #check A^n
 
 -- How does one write an element with type EuclideanSpace ℝ (Fin n)?
--- How does one show that the coordinate projections ℝ^n → ℝ are elements of C^∞(ℝ^n, ℝ^1)?
 -- How does one access the unique element of EuclideanSpace ℝ (Fin 0), or of the type (Fin 0) → α more generally?
 
--- Outline:
 
+-- defines the ith projection map π i : ℝ^n → ℝ
 def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
   let f : (ℝ^n) → (ℝ^1) := (fun x ↦ (fun _ ↦ x i))
   have h : ContDiff ℝ ⊤ f := by sorry
   exact ⟨f, h⟩
 
+-- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
 def comp {n m k: ℕ} (g : C^∞(ℝ^m, ℝ^k)) (f : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := by
   let gf : (ℝ^n) → (ℝ^k) := g.1 ∘ f.1
   have h : ContDiff ℝ ⊤ gf := by sorry
   exact ⟨gf, h⟩
-
 infixr:75 " ⋄ " => comp
--- Defines composition as a map C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
 
-
--- Defines structure of a C^∞-Ring α (a C^∞-Ring taking values in the type A)
+-- Defines the class of a C^∞-Ring α (a C^∞-Ring taking values in the type A)
 class CinftyRing (A: Type*) where
-  intrprt : ∀ {n m : ℕ} (f : C^∞(ℝ^n, ℝ^m)), (A^n) → (A^m)
+  intrprt : ∀ {n m : ℕ} (_ : C^∞(ℝ^n, ℝ^m)), (A^n) → (A^m)
   fnctr : ∀ {n m k: ℕ} (f : C^∞(ℝ^n, ℝ^m)) (g : C^∞(ℝ^m, ℝ^k)), intrprt (g ⋄ f) = (intrprt g) ∘ (intrprt f)
   proj : ∀ {n : ℕ} (i : Fin n), intrprt (π i) = fun a ↦ (fun _ ↦ a i)
 
--- define a type/structure/attribute Hom A B of C^∞-Ring homomorphisms (A: C^∞-Ring α) to (B: C^∞-Ring β)
+-- Define the structure of C^∞-Ring homomorphisms A → B
 @[ext]
 structure CinftyRingHom (A B : Type*) [CinftyRing A] [CinftyRing B] where
   toFun : A → B
@@ -68,7 +64,7 @@ instance {A: Type*} [CinftyRing A] : --ℝ-algebra A :=
 -- instance struct (n : ℕ) : C^∞-Ring C^∞(ℝ^n, ℝ^1)
 instance (n : ℕ) : CinftyRing C^∞(ℝ^n) where
   intrprt := sorry
-  -- fnctr := sorry
+  fnctr := sorry
   proj := sorry
 
 -- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(ℝ^n) A, (∀ i: Fin n, Φ (π i) = a i )
