@@ -44,7 +44,7 @@ class CinftyRing (A: Type*) where
 @[ext]
 structure CinftyRingHom (A B : Type*) [CinftyRing A] [CinftyRing B] where
   toFun : A → B
-  compat : ∀ {n m : ℕ} (f : C^∞(ℝ^n, ℝ^m)) (a : A^n), (fun i ↦ (toFun (CinftyRing.intrprt f a i))) = CinftyRing.intrprt f (fun i ↦ toFun (a i))
+  compat : ∀ {n m : ℕ} (f : C^∞(ℝ^n, ℝ^m)) (a : A^n), toFun ∘ (CinftyRing.intrprt f a) = CinftyRing.intrprt f (toFun ∘ a)
 
 instance [CinftyRing A] [CinftyRing B] : CoeFun (CinftyRingHom A B) (fun _ ↦ A → B) where
   coe := CinftyRingHom.toFun
