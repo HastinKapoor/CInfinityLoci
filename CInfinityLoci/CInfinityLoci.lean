@@ -1,7 +1,7 @@
 import Mathlib.Analysis.Calculus.ContDiff.Defs
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
-namespace CInfinityLoci
+namespace CinftyLoci
 
 variable (n m : ℕ)
 
@@ -19,13 +19,16 @@ notation "C^∞(ℝ^"n", ℝ^"m")" => {f: EuclideanSpace ℝ (Fin n) → Euclide
 -- Outline:
 
 -- Define structure of a C^∞-Ring α (a C^∞-Ring taking values in the type α)
-structure CinftyRing (α: Type*) where
-  intrprt : ∀ {n m: ℕ} (f : C^∞(ℝ^n, ℝ^m)), (Fin n → α) → (Fin m → α)
+class CinftyRing (A: Type) where
+  intrprt : ∀ {n m : ℕ} (f : C^∞(ℝ^n, ℝ^m)), (Fin n → A) → (Fin m → A)
 --   fnctr : ∀ {n m k: ℕ} (f : C^∞(ℝ^n, ℝ^m)) (g : C^∞(ℝ^m, ℝ^k)), ... (something saying intrprt (f ∘ g) = (intrprt f) ∘ (intrprt g))
---   proj : ... something saying that intrprt takes projections ℝ^n → ℝ onto the ith factor to fun (a : Fin n → α) → (a i : α)
-
+--   proj : ... something saying that intrprt takes projections ℝ^n → ℝ onto the ith factor to fun (a : Fin n → A) → (a i : A)
 
 -- define a type/structure/attribute Hom A B of C^∞-Ring homomorphisms (A: C^∞-Ring α) to (B: C^∞-Ring β)
+@[ext]
+structure CinftyRingHom (A B : Type) [CinftyRing A] [CinftyRing B] where
+  toFun : A → B
+  compat : ∀ {n m : ℕ} (f : C^∞(ℝ^n, ℝ^m)) (a : Fin n → A), (fun (i : Fin m) ↦ (toFun (CinftyRing.intrprt f a i))) = CinftyRing.intrprt f (fun (i : Fin n) ↦ toFun (a i))
 
 -- theorem saying that every C^∞-Ring is an instance of a commutative ℝ-algebra
 
@@ -41,6 +44,6 @@ structure CinftyRing (α: Type*) where
 
 -- prove that if A is a C^∞-Ring and I is an ideal of A, then A/I has a C^∞-Ring structure such that the projection A → A/I is a C^∞-Ring homomorphism
 
--- theorem fin_gen_iff_quot_of_free (A: C^∞-Ring): FinGen A ↔ ∃ (n: Nat) (I: Ideal C^∞(𝓡 n, ℝ)), Isom A C^∞(ℝ n, ℝ)/I
+-- theorem fin_gen_iff_quot_of_free (A: C^∞-Ring): FinGen A ↔ ∃ (n: Nat) (I: Ideal C^∞(ℝ^n, ℝ^1)), Isom A C^∞(ℝ^n, ℝ^1)/I
 
 -- Steps for further on down the line (if time): define open/closed subobjects, meets and joins thereof, normality, etc.
