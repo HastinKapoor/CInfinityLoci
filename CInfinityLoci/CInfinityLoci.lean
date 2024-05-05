@@ -6,9 +6,9 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 variable (n m : ℕ)
 
 notation "ℝ^"n => EuclideanSpace ℝ (Fin n)
-
-notation "C^∞(ℝ^"n", ℝ^"m")" => {f: EuclideanSpace ℝ (Fin n) → EuclideanSpace ℝ (Fin m) // ContDiff ℝ (⊤ : ℕ∞) f }
+notation "C^∞(ℝ^"n", ℝ^"m")" => {f: (ℝ^n) → (ℝ^m) // ContDiff ℝ ⊤ f }
 notation "C^∞(ℝ^"n")" => C^∞(ℝ^n, ℝ^1)
+
 
 #check C^∞(ℝ^n, ℝ^m)
 
@@ -23,11 +23,16 @@ variable (f : C^∞(ℝ^n, ℝ^m))
 
 -- Outline:
 
--- Define structure of a C^∞-Ring α (a C^∞-Ring taking values in the type α)
+def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
+  let f : (ℝ^n) → (ℝ^1) := sorry
+  have h : ContDiff ℝ ⊤ f := by sorry
+  exact ⟨f, h⟩
+
+-- Define structure of a C^∞-Ring α (a C^∞-Ring taking values in the type A)
 class CinftyRing (A: Type*) where
   intrprt : ∀ {n m : ℕ} (f : C^∞(ℝ^n, ℝ^m)), (Fin n → A) → (Fin m → A)
 --   fnctr : ∀ {n m k: ℕ} (f : C^∞(ℝ^n, ℝ^m)) (g : C^∞(ℝ^m, ℝ^k)), ... (something saying intrprt (f ∘ g) = (intrprt f) ∘ (intrprt g))
---   proj : ... something saying that intrprt takes projections ℝ^n → ℝ onto the ith factor to fun (a : Fin n → A) → (a i : A)
+  proj : ∀ {n : ℕ} (i : Fin n), intrprt (π i) = fun (a : Fin n → A) ↦ (fun (_ : Fin 1) ↦ a i)
 
 -- define a type/structure/attribute Hom A B of C^∞-Ring homomorphisms (A: C^∞-Ring α) to (B: C^∞-Ring β)
 @[ext]
@@ -47,13 +52,13 @@ instance {A: Type*} [CinftyRing A] : --ℝ-algebra A :=
 instance (n : ℕ) : CinftyRing C^∞(ℝ^n) where
   intrprt := sorry
   -- fnctr := sorry
-  -- proj := sorry
+  proj := sorry
 
--- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(𝓡 n, ℝ) A, (∀ i: Fin n, Φ (π i) = a i )
+-- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(ℝ^n) A, (∀ i: Fin n, Φ (π i) = a i )
 -- where π i : C^∞(ℝ^n, ℝ^1) is the projection ℝ^n → ℝ onto the ith factor
 
 
--- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(ℝ^n, ℝ^1) A), Surjective Φ
+-- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(ℝ^n) A), Surjective Φ
 
 -- prove that if A is a C^∞-Ring and I is an ideal of A, then A/I has a C^∞-Ring structure such that the projection A → A/I is a C^∞-Ring homomorphism
 
