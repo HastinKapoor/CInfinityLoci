@@ -1,4 +1,5 @@
-import Mathlib.Analysis.Calculus.ContDiff
+import Mathlib.Analysis.Calculus.ContDiff.Defs
+import Mathlib.Analysis.Calculus.AffineMap
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
 -- namespace CinftyLoci
@@ -20,15 +21,12 @@ notation "C^∞(ℝ^"n")" => C^∞(ℝ^n, ℝ^1)
 
 -- defines the ith projection map π i : ℝ^n → ℝ
 def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
-  let F : (ℝ^n) → (ℝ^1) := (fun x ↦ (fun _ ↦ x i))
-  have hyp : ContDiff ℝ ⊤ f := by sorry
-  exact ⟨F, hyp⟩
+  use (fun x ↦ (fun _ ↦ x i))
+  -- apply ContinuousAffineMap.contDiff
+  sorry
 
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
-def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := by
-  let GF : (ℝ^n) → (ℝ^k) := G.1 ∘ F.1
-  have hyp : ContDiff ℝ ⊤ GF := ContDiff.comp G.2 F.2
-  exact ⟨GF, hyp⟩
+def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := ⟨G.1 ∘ F.1, sorry /- ContDiff.comp G.2 F.2 -/⟩ -- Doesn't work because the file Mathlib.Analysis.Calculus.ContDiff is broken
 infixr:75 " ⋄ " => comp
 
 -- Defines the class C^∞-Rings
