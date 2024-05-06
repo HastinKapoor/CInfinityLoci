@@ -23,28 +23,28 @@ notation "C^∞(ℝ^"n")" => C^∞(ℝ^n, ℝ^1)
 
 -- defines the ith projection map π i : ℝ^n → ℝ
 def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
-  let f : (ℝ^n) → (ℝ^1) := (fun x ↦ (fun _ ↦ x i))
-  have h : ContDiff ℝ ⊤ f := by sorry
-  exact ⟨f, h⟩
+  let F : (ℝ^n) → (ℝ^1) := (fun x ↦ (fun _ ↦ x i))
+  have hyp : ContDiff ℝ ⊤ f := by sorry
+  exact ⟨F, hyp⟩
 
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
-def comp {n m k: ℕ} (g : C^∞(ℝ^m, ℝ^k)) (f : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := by
-  let gf : (ℝ^n) → (ℝ^k) := g.1 ∘ f.1
-  have h : ContDiff ℝ ⊤ gf := by sorry
-  exact ⟨gf, h⟩
+def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := by
+  let GF : (ℝ^n) → (ℝ^k) := G.1 ∘ F.1
+  have hyp : ContDiff ℝ ⊤ GF := by sorry
+  exact ⟨GF, hyp⟩
 infixr:75 " ⋄ " => comp
 
 -- Defines the class of a C^∞-Ring α (a C^∞-Ring taking values in the type A)
 class CinftyRing (A: Type*) where
   intrprt : ∀ {n m : ℕ} (_ : C^∞(ℝ^n, ℝ^m)), (A^n) → (A^m)
-  fnctr : ∀ {n m k: ℕ} (f : C^∞(ℝ^n, ℝ^m)) (g : C^∞(ℝ^m, ℝ^k)), intrprt (g ⋄ f) = (intrprt g) ∘ (intrprt f)
+  fnctr : ∀ {n m k: ℕ} (F : C^∞(ℝ^n, ℝ^m)) (G : C^∞(ℝ^m, ℝ^k)), intrprt (G ⋄ F) = (intrprt G) ∘ (intrprt F)
   proj : ∀ {n : ℕ} (i : Fin n), intrprt (π i) = fun a ↦ (fun _ ↦ a i)
 
 -- Define the structure of C^∞-Ring homomorphisms A → B
 @[ext]
 structure CinftyRingHom (A B : Type*) [CinftyRing A] [CinftyRing B] where
   toFun : A → B
-  compat : ∀ {n m : ℕ} (f : C^∞(ℝ^n, ℝ^m)) (a : A^n), toFun ∘ (CinftyRing.intrprt f a) = CinftyRing.intrprt f (toFun ∘ a)
+  compat : ∀ {n m : ℕ} (F : C^∞(ℝ^n, ℝ^m)) (a : A^n), toFun ∘ (CinftyRing.intrprt F a) = CinftyRing.intrprt F (toFun ∘ a)
 
 instance [CinftyRing A] [CinftyRing B] : CoeFun (CinftyRingHom A B) (fun _ ↦ A → B) where
   coe := CinftyRingHom.toFun
@@ -62,10 +62,22 @@ instance {A: Type*} [CinftyRing A] : --ℝ-algebra A :=
 -- theorem saying that C^∞-Ring homomorphism is a unital ℝ-algebra homomorphism
 
 -- instance struct (n : ℕ) : C^∞-Ring C^∞(ℝ^n, ℝ^1)
-instance (n : ℕ) : CinftyRing C^∞(ℝ^n) where
-  intrprt := sorry
-  fnctr := sorry
-  proj := sorry
+instance (d : ℕ) : CinftyRing C^∞(ℝ^d) where
+  intrprt := by
+    intro n m F g i
+    let Fig: (ℝ^d) → (ℝ^1) := fun x ↦ ((π i) ⋄ F).1 (fun j ↦ (g j).1 x 0)
+    have h : ContDiff ℝ ⊤ Fig := sorry
+    exact ⟨Fig, h⟩
+  fnctr := by
+    intro n m k F G
+    ext f
+    dsimp
+    sorry
+  proj := by
+    intro n i
+    ext g
+    dsimp
+    sorry
 
 -- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(ℝ^n) A, (∀ i: Fin n, Φ (π i) = a i )
 -- where π i : C^∞(ℝ^n, ℝ^1) is the projection ℝ^n → ℝ onto the ith factor
