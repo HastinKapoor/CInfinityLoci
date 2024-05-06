@@ -14,9 +14,6 @@ notation "C^∞(ℝ^"n")" => C^∞(ℝ^n, ℝ^1)
 -- #check f.1
 -- #check f.2
 
--- variable (A : Type*)
--- #check A^n
-
 -- How does one write an element with type EuclideanSpace ℝ (Fin n)?
 -- How does one access the unique element of EuclideanSpace ℝ (Fin 0), or of the type (Fin 0) → α more generally?
 
@@ -34,7 +31,7 @@ def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^�
   exact ⟨GF, hyp⟩
 infixr:75 " ⋄ " => comp
 
--- Defines the class of a C^∞-Ring α (a C^∞-Ring taking values in the type A)
+-- Defines the class C^∞-Rings
 class CinftyRing (A: Type*) where
   intrprt : ∀ {n m : ℕ} (_ : C^∞(ℝ^n, ℝ^m)), (A^n) → (A^m)
   fnctr : ∀ {n m k: ℕ} (F : C^∞(ℝ^n, ℝ^m)) (G : C^∞(ℝ^m, ℝ^k)), intrprt (G ⋄ F) = (intrprt G) ∘ (intrprt F)
@@ -53,7 +50,7 @@ attribute [coe] CinftyRingHom.toFun
 
 -- define coercion to ℝ-algebra homomorphism?
 
--- theorem saying that every C^∞-Ring is an instance of a commutative ℝ-algebra
+-- theorem saying that every C^∞-Ring is a commutative ℝ-algebra
 instance {A: Type*} [CinftyRing A] : --ℝ-algebra A :=
 {
   sorry
@@ -61,7 +58,7 @@ instance {A: Type*} [CinftyRing A] : --ℝ-algebra A :=
 
 -- theorem saying that C^∞-Ring homomorphism is a unital ℝ-algebra homomorphism
 
--- instance struct (n : ℕ) : C^∞-Ring C^∞(ℝ^n, ℝ^1)
+-- Shows that C^∞(ℝ^d) is a C^∞-Ring
 instance (d : ℕ) : CinftyRing C^∞(ℝ^d) where
   intrprt := by
     intro n m F g i
