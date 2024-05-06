@@ -1,4 +1,4 @@
-import Mathlib.Analysis.Calculus.ContDiff.Defs
+import Mathlib.Analysis.Calculus.ContDiff
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
 -- namespace CinftyLoci
@@ -27,7 +27,7 @@ def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
 def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := by
   let GF : (ℝ^n) → (ℝ^k) := G.1 ∘ F.1
-  have hyp : ContDiff ℝ ⊤ GF := by sorry
+  have hyp : ContDiff ℝ ⊤ GF := ContDiff.comp G.2 F.2
   exact ⟨GF, hyp⟩
 infixr:75 " ⋄ " => comp
 
