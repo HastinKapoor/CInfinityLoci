@@ -48,6 +48,8 @@ attribute [coe] CinftyRingHom.toFun
 
 -- define coercion to ℝ-algebra homomorphism?
 
+-- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
+
 -- theorem saying that every C^∞-Ring is a commutative ℝ-algebra
 instance {A: Type*} [CinftyRing A] : --ℝ-algebra A :=
 {
