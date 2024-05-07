@@ -74,14 +74,17 @@ instance (d : ℕ) : CinftyRing C^∞(ℝ^d) where
     have h : ContDiff ℝ ⊤ Fig := sorry
     exact ⟨Fig, h⟩
   fnctr := by
-    intro n m k F G
-    ext f
-    dsimp
-    sorry
+    intro _ _ _ _ _
+    rfl
   proj := by
     intro n i
     ext g
     dsimp
+    have h : π (0: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
+      ext x i
+      dsimp
+      sorry
+
     sorry
 
 -- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(ℝ^n) A, (∀ i: Fin n, Φ (π i) = a i )
