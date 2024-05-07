@@ -1,4 +1,5 @@
 import Mathlib.Analysis.Calculus.ContDiff.Defs
+import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.Analysis.Calculus.AffineMap
 import Mathlib.Analysis.InnerProductSpace.PiL2
 
@@ -26,7 +27,7 @@ def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
   sorry
 
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
-def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := ⟨G.1 ∘ F.1, sorry /- ContDiff.comp G.2 F.2 -/⟩ -- Doesn't work because the file Mathlib.Analysis.Calculus.ContDiff is broken
+def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := ⟨G.1 ∘ F.1, ContDiff.comp G.2 F.2⟩
 infixr:75 " ⋄ " => comp
 
 -- Defines the class C^∞-Rings
