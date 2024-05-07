@@ -2,6 +2,7 @@ import Mathlib.Analysis.Calculus.ContDiff.Defs
 import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.Analysis.Calculus.AffineMap
 import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Analysis.InnerProductSpace.Calculus
 
 -- namespace CinftyLoci
 
@@ -23,8 +24,14 @@ notation "C^∞(ℝ^"n")" => C^∞(ℝ^n, ℝ^1)
 -- defines the ith projection map π i : ℝ^n → ℝ
 def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
   use (fun x ↦ (fun _ ↦ x i))
-  -- apply ContinuousAffineMap.contDiff
-  sorry
+  have h : ContDiff ℝ ⊤ (id : (ℝ^n) → (ℝ^n)) := contDiff_id
+  convert contDiff_euclidean.1 h i
+  constructor
+  · intro t
+    exact contDiff_euclidean.1 t 1
+  · intro t
+    apply contDiff_euclidean.2
+    exact fun _ ↦ t
 
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
 def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := ⟨G.1 ∘ F.1, ContDiff.comp G.2 F.2⟩
@@ -78,7 +85,6 @@ instance (d : ℕ) : CinftyRing C^∞(ℝ^d) where
     sorry
 
 -- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(ℝ^n) A, (∀ i: Fin n, Φ (π i) = a i )
--- where π i : C^∞(ℝ^n, ℝ^1) is the projection ℝ^n → ℝ onto the ith factor
 
 
 -- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(ℝ^n) A), Surjective Φ
