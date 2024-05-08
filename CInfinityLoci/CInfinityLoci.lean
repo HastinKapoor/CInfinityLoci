@@ -58,16 +58,58 @@ attribute [coe] CinftyRingHom.toFun
 
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
 
--- theorem saying that every C^∞-Ring is a commutative ℝ-algebra
-instance {A: Type*} [CinftyRing A] : --ℝ-algebra A :=
-{
-  sorry
-}
+-- theorem saying that every C^∞-Ring is a commutative (unital) ring
+instance {A: Type*} [CinftyRing A] : CommRing A where
+  zero := by
+    let c₀ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 0, contDiff_const⟩
+    exact CinftyRing.intrprt c₀ (Fin.elim0: Fin 0 → A) 0
+  one := by
+    let c₁ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 1, contDiff_const⟩
+    exact CinftyRing.intrprt c₁ (Fin.elim0: Fin 0 → A) 0
+  add := by
+    let sm_mul : C^∞(ℝ^2) := by
+      use fun x ↦ (fun _ ↦ (x 0) * (x 1))
+      sorry -- contDiff_mul
+    intro a₁ a₂
+    let a : (Fin 2 → A) := sorry
+    sorry
+  add_comm := sorry
+  add_assoc := sorry
+  zero_add := sorry
+  add_zero := sorry
+  neg := by
+    let sm_neg : C^∞(ℝ^1) := ⟨fun x ↦ -x, contDiff_neg⟩
+    exact fun a ↦ CinftyRing.intrprt sm_neg (fun (_: Fin 1) ↦ a) 0
+  nsmul := sorry
+  mul := sorry
+  mul_assoc := sorry
+  mul_comm := sorry
+  zero_mul := sorry
+  mul_zero := sorry
+  one_mul := sorry
+  mul_one := sorry
+  left_distrib := sorry
+  right_distrib := sorry
+  zsmul := sorry
+  add_left_neg := sorry
+
+
+-- theorem saying that every C^∞-Ring is an ℝ-algebra
+instance (A: Type*) [CinftyRing A] : Algebra ℝ A where
+  smul := sorry
+  toFun := sorry
+  map_one' := sorry
+  map_mul' := sorry
+  map_zero' := sorry
+  map_add' := sorry
+  commutes' := sorry
+  smul_def' := sorry
+
 
 -- theorem saying that C^∞-Ring homomorphism is a unital ℝ-algebra homomorphism
 
 -- Shows that C^∞(ℝ^d) is a C^∞-Ring
-instance (d : ℕ) : CinftyRing C^∞(ℝ^d) where
+instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
   intrprt := by
     intro n m F g i
     let Fig: (ℝ^d) → (ℝ^1) := fun x ↦ ((π i) ⋄ F).1 (fun j ↦ (g j).1 x 0)
