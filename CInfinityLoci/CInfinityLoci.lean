@@ -13,6 +13,9 @@ notation "ℝ^"n => EuclideanSpace ℝ (Fin n)
 notation "C^∞(ℝ^"n", ℝ^"m")" => {f: (ℝ^n) → (ℝ^m) // ContDiff ℝ ⊤ f }
 notation "C^∞(ℝ^"n")" => C^∞(ℝ^n, ℝ^1)
 
+instance {n m : ℕ} : CoeFun C^∞(ℝ^n, ℝ^m) (fun _ ↦ (ℝ^n) → (ℝ^m)) where
+  coe := fun f ↦ f.1
+
 -- variable (f : C^∞(ℝ^n, ℝ^m))
 -- #check f.1
 -- #check f.2
@@ -112,7 +115,7 @@ instance (A: Type*) [CinftyRing A] : Algebra ℝ A where
 instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
   intrprt := by
     intro n m F g i
-    let Fig: (ℝ^d) → (ℝ^1) := fun x ↦ ((π i) ⋄ F).1 (fun j ↦ (g j).1 x 0)
+    let Fig: (ℝ^d) → (ℝ^1) := fun x ↦ ((π i) ⋄ F) (fun j ↦ g j x 0)
     have h : ContDiff ℝ ⊤ Fig := sorry
     exact ⟨Fig, h⟩
   fnctr := by
