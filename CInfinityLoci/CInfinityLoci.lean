@@ -118,7 +118,6 @@ instance (A: Type*) [CinftyRing A] : Algebra ℝ A where
   commutes' := sorry
   smul_def' := sorry
 
-
 -- theorem saying that C^∞-Ring homomorphism is a unital ℝ-algebra homomorphism
 
 -- Shows that C^∞(ℝ^d) is a C^∞-Ring
@@ -140,12 +139,20 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
     ext g
     rw [dia_coe_comp, dia_coe_comp, pi0_eq_id, π]
     dsimp
-    rename_i i
-    rw [Fin.fin_one_eq_zero i]
+    rename_i j
+    rw [Fin.fin_one_eq_zero j]
 
-theorem free_CinftyRing (d: ℕ) : ∀ {A : Type} [CinftyRing A] (a: A^n), ∃! Φ: CinftyRingHom C^∞(ℝ^n) A, (∀ i : Fin n, Φ (π i) = a i ) := by
-  sorry
-
+theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! Φ : CinftyRingHom C^∞(ℝ^d) A, (∀ i : Fin d, Φ (π i) = a i ) := by
+  intro A _ a
+  let Φ : CinftyRingHom C^∞(ℝ^d) A := ⟨fun g ↦ CinftyRing.intrprt g a 0, sorry⟩
+  use Φ
+  constructor
+  · intro i
+    dsimp
+    rw [CinftyRing.proj i]
+  · intro Ψ h
+    ext g
+    sorry
 
 -- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(ℝ^n) A), Surjective Φ
 
