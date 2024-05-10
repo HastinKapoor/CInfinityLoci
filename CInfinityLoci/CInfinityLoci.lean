@@ -36,6 +36,17 @@ def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
     apply contDiff_euclidean.2
     exact fun _ ↦ t
 
+lemma pi0_eq_id : π (0: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
+      ext x i
+      dsimp [π]
+      have h : i.1 = 0 := by
+        have _ : i.1 < 1 := i.2
+        linarith
+      have t : 0 = (0: Fin 1).1 := by
+        rfl
+      rw [t] at h
+      rw [Fin.eq_of_val_eq h]
+
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
 def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := ⟨G.1 ∘ F.1, ContDiff.comp G.2 F.2⟩
 infixr:75 " ⋄ " => comp
@@ -65,14 +76,17 @@ attribute [coe] CinftyRingHom.toFun
 instance {A: Type*} [CinftyRing A] : CommRing A where
   zero := by
     let c₀ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 0, contDiff_const⟩
-    exact CinftyRing.intrprt c₀ (Fin.elim0: Fin 0 → A) 0
+    exact CinftyRing.intrprt c₀ Fin.elim0 0
   one := by
     let c₁ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 1, contDiff_const⟩
-    exact CinftyRing.intrprt c₁ (Fin.elim0: Fin 0 → A) 0
+    exact CinftyRing.intrprt c₁ Fin.elim0 0
   add := by
     let sm_mul : C^∞(ℝ^2) := by
       use fun x ↦ (fun _ ↦ (x 0) * (x 1))
-      sorry -- contDiff_mul
+      apply contDiff_euclidean.2
+      intro _
+      convert ContDiff.mul (π (0: Fin 2)).2 (π (1: Fin 2)).2
+
     intro a₁ a₂
     let a : (Fin 2 → A) := sorry
     sorry
@@ -115,9 +129,13 @@ instance (A: Type*) [CinftyRing A] : Algebra ℝ A where
 instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
   intrprt := by
     intro n m F g i
-    let Fig: (ℝ^d) → (ℝ^1) := fun x ↦ ((π i) ⋄ F) (fun j ↦ g j x 0)
-    have h : ContDiff ℝ ⊤ Fig := sorry
-    exact ⟨Fig, h⟩
+    have G : C^∞(ℝ^d, ℝ^n) := by
+      use fun x ↦ (fun j ↦ g j x 0)
+      apply contDiff_euclidean.2
+      intro j
+      apply contDiff_euclidean.1
+      exact (g j).2
+    exact (π i) ⋄ F ⋄ G
   fnctr := by
     intro _ _ _ _ _
     rfl
@@ -127,8 +145,7 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
     dsimp
     have h : π (0: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
       ext x i
-      dsimp
-      sorry
+      dsimp [π]
 
     sorry
 
