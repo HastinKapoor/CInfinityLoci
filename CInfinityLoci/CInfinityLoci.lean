@@ -123,7 +123,7 @@ instance (A: Type*) [CinftyRing A] : Algebra ℝ A where
 -- Shows that C^∞(ℝ^d) is a C^∞-Ring
 instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
   intrprt := by
-    intro n m F g i
+    intro n _ F g i
     have G : C^∞(ℝ^d, ℝ^n) := by
       use fun x ↦ (fun j ↦ g j x 0)
       apply contDiff_euclidean.2
@@ -135,8 +135,8 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
     intro _ _ _ _ _
     rfl
   proj := by
-    intro n i
-    ext g
+    intro _ _
+    ext _
     rw [dia_coe_comp, dia_coe_comp, pi0_eq_id, π]
     dsimp
     rename_i j
