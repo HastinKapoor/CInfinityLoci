@@ -81,7 +81,7 @@ instance {A: Type*} [CinftyRing A] : CommRing A where
       use fun x ↦ (fun _ ↦ (x 0) * (x 1))
       apply contDiff_euclidean.2
       intro _
-      convert ContDiff.mul (π (0: Fin 2)).2 (π (1: Fin 2)).2
+      sorry -- convert ContDiff.mul (π (0: Fin 2)).2 (π (1: Fin 2)).2
 
     intro a₁ a₂
     let a : (Fin 2 → A) := sorry
