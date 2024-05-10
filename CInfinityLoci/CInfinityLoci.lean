@@ -36,20 +36,16 @@ def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
     apply contDiff_euclidean.2
     exact fun _ ↦ t
 
-lemma pi0_eq_id : π (0: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
-      ext x i
+lemma pi0_eq_id : π (i: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
+      ext x j
       dsimp [π]
-      have h : i.1 = 0 := by
-        have _ : i.1 < 1 := i.2
-        linarith
-      have t : 0 = (0: Fin 1).1 := by
-        rfl
-      rw [t] at h
-      rw [Fin.eq_of_val_eq h]
+      rw [Fin.fin_one_eq_zero i, Fin.fin_one_eq_zero j]
 
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
 def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^∞(ℝ^n, ℝ^k) := ⟨G.1 ∘ F.1, ContDiff.comp G.2 F.2⟩
 infixr:75 " ⋄ " => comp
+
+lemma dia_coe_comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : (G ⋄ F).1 = G.1 ∘ F.1 := by rfl
 
 -- Defines the class C^∞-Rings
 class CinftyRing (A: Type*) where
@@ -142,12 +138,8 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
   proj := by
     intro n i
     ext g
-    dsimp
-    have h : π (0: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
-      ext x i
-      dsimp [π]
-
-    sorry
+    rw [dia_coe_comp, dia_coe_comp, pi0_eq_id, π]
+    match Fin.fin_one_eq_zero
 
 -- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(ℝ^n) A, (∀ i: Fin n, Φ (π i) = a i )
 
