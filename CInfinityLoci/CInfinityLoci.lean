@@ -139,9 +139,12 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
     intro n i
     ext g
     rw [dia_coe_comp, dia_coe_comp, pi0_eq_id, π]
-    match Fin.fin_one_eq_zero
+    dsimp
+    rename_i i
+    rw [Fin.fin_one_eq_zero i]
 
--- theorem free_C^∞-Ring (n: ℕ) : ∀ (A : C^∞-Ring α) (a: Fin n → A), ∃! Φ: Hom C^∞(ℝ^n) A, (∀ i: Fin n, Φ (π i) = a i )
+theorem free_CinftyRing (d: ℕ) : ∀ {A : Type} [CinftyRing A] (a: A^n), ∃! Φ: CinftyRingHom C^∞(ℝ^n) A, (∀ i : Fin n, Φ (π i) = a i ) := by
+  sorry
 
 
 -- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(ℝ^n) A), Surjective Φ
