@@ -63,8 +63,6 @@ instance [CinftyRing A] [CinftyRing B] : CoeFun (CinftyRingHom A B) (fun _ ↦ A
 
 attribute [coe] CinftyRingHom.toFun
 
-def Surjective [CinftyRing A] [CinftyRing B] (Φ : CinftyRingHom A B) : Prop := Function.Surjective Φ.toFun
-
 -- define coercion to ℝ-algebra homomorphism?
 
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
@@ -165,7 +163,7 @@ theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! 
     ext g
     sorry
 
-def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Surjective Φ
+def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Function.Surjective Φ
 
 -- prove that if A is a C^∞-Ring and I is an ideal of A, then A/I has a C^∞-Ring structure such that the projection A → A/I is a C^∞-Ring homomorphism
 
