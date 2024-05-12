@@ -3,6 +3,7 @@ import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.Analysis.Calculus.AffineMap
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.InnerProductSpace.Calculus
+import Mathlib.Init.Function
 
 -- namespace CinftyLoci
 
@@ -21,8 +22,6 @@ instance {n m : ℕ} : CoeFun C^∞(ℝ^n, ℝ^m) (fun _ ↦ (ℝ^n) → (ℝ^m)
 -- #check f.2
 
 -- How does one write an element with type EuclideanSpace ℝ (Fin n)?
--- How does one access the unique element of EuclideanSpace ℝ (Fin 0), or of the type (Fin 0) → α more generally?
-
 
 -- defines the ith projection map π i : ℝ^n → ℝ
 def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
@@ -64,6 +63,8 @@ instance [CinftyRing A] [CinftyRing B] : CoeFun (CinftyRingHom A B) (fun _ ↦ A
 
 attribute [coe] CinftyRingHom.toFun
 
+def Surjective [CinftyRing A] [CinftyRing B] (Φ : CinftyRingHom A B) : Prop := Function.Surjective Φ.toFun
+
 -- define coercion to ℝ-algebra homomorphism?
 
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
@@ -83,8 +84,11 @@ instance {A: Type*} [CinftyRing A] : CommRing A where
       intro _
       sorry -- convert ContDiff.mul (π (0: Fin 2)).2 (π (1: Fin 2)).2
 
-    intro a₁ a₂
-    let a : (Fin 2 → A) := sorry
+    intro a₀ a₁
+    let a : (Fin 2 → A)
+      | 0 => a₀
+      | 1 => a₁
+
     sorry
   add_comm := sorry
   add_assoc := sorry
@@ -144,7 +148,14 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
 
 theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! Φ : CinftyRingHom C^∞(ℝ^d) A, (∀ i : Fin d, Φ (π i) = a i ) := by
   intro A _ a
-  let Φ : CinftyRingHom C^∞(ℝ^d) A := ⟨fun g ↦ CinftyRing.intrprt g a 0, sorry⟩
+  let Φ : CinftyRingHom C^∞(ℝ^d) A := by
+    use fun f ↦ CinftyRing.intrprt f a 0
+    intro n m F g
+    ext i
+    dsimp
+    sorry -- apply CinftyRing.fnctr
+
+
   use Φ
   constructor
   · intro i
@@ -154,7 +165,7 @@ theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! 
     ext g
     sorry
 
--- def FinGen (A: C^∞-Ring): ∃ (n: ℕ) (Φ: Hom C^∞(ℝ^n) A), Surjective Φ
+def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Surjective Φ
 
 -- prove that if A is a C^∞-Ring and I is an ideal of A, then A/I has a C^∞-Ring structure such that the projection A → A/I is a C^∞-Ring homomorphism
 
