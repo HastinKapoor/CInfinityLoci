@@ -5,6 +5,8 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.InnerProductSpace.Calculus
 import Mathlib.Init.Function
 
+open Function
+
 -- namespace CinftyLoci
 
 variable (n m : ℕ)
@@ -52,11 +54,13 @@ class CinftyRing (A: Type*) where
   fnctr : ∀ {n m k: ℕ} (F : C^∞(ℝ^n, ℝ^m)) (G : C^∞(ℝ^m, ℝ^k)), intrprt (G ⋄ F) = (intrprt G) ∘ (intrprt F)
   proj : ∀ {n : ℕ} (i : Fin n), intrprt (π i) = fun a ↦ (fun _ ↦ a i)
 
+open CinftyRing
+
 -- Define the structure of C^∞-Ring homomorphisms A → B
 @[ext]
 structure CinftyRingHom (A B : Type*) [CinftyRing A] [CinftyRing B] where
   toFun : A → B
-  compat : ∀ {n m : ℕ} (F : C^∞(ℝ^n, ℝ^m)) (a : A^n), toFun ∘ (CinftyRing.intrprt F a) = CinftyRing.intrprt F (toFun ∘ a)
+  compat : ∀ {n m : ℕ} (F : C^∞(ℝ^n, ℝ^m)) (a : A^n), toFun ∘ (intrprt F a) = intrprt F (toFun ∘ a)
 
 instance [CinftyRing A] [CinftyRing B] : CoeFun (CinftyRingHom A B) (fun _ ↦ A → B) where
   coe := CinftyRingHom.toFun
@@ -71,10 +75,10 @@ attribute [coe] CinftyRingHom.toFun
 instance {A: Type*} [CinftyRing A] : CommRing A where
   zero := by
     let c₀ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 0, contDiff_const⟩
-    exact CinftyRing.intrprt c₀ Fin.elim0 0
+    exact intrprt c₀ Fin.elim0 0
   one := by
     let c₁ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 1, contDiff_const⟩
-    exact CinftyRing.intrprt c₁ Fin.elim0 0
+    exact intrprt c₁ Fin.elim0 0
   add := by
     let sm_mul : C^∞(ℝ^2) := by
       use fun x ↦ (fun _ ↦ (x 0) * (x 1))
@@ -83,9 +87,10 @@ instance {A: Type*} [CinftyRing A] : CommRing A where
       sorry -- convert ContDiff.mul (π (0: Fin 2)).2 (π (1: Fin 2)).2
 
     intro a₀ a₁
-    let a : (Fin 2 → A)
-      | 0 => a₀
-      | 1 => a₁
+    let a : Fin 2 → A := by
+      intro i
+
+
 
     sorry
   add_comm := sorry
@@ -94,7 +99,7 @@ instance {A: Type*} [CinftyRing A] : CommRing A where
   add_zero := sorry
   neg := by
     let sm_neg : C^∞(ℝ^1) := ⟨fun x ↦ -x, contDiff_neg⟩
-    exact fun a ↦ CinftyRing.intrprt sm_neg (fun (_: Fin 1) ↦ a) 0
+    exact fun a ↦ intrprt sm_neg (fun (_: Fin 1) ↦ a) 0
   nsmul := sorry
   mul := sorry
   mul_assoc := sorry
@@ -147,7 +152,7 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
 theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! Φ : CinftyRingHom C^∞(ℝ^d) A, (∀ i : Fin d, Φ (π i) = a i ) := by
   intro A _ a
   let Φ : CinftyRingHom C^∞(ℝ^d) A := by
-    use fun f ↦ CinftyRing.intrprt f a 0
+    use fun f ↦ intrprt f a 0
     intro n m F g
     ext i
     dsimp
@@ -163,7 +168,7 @@ theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! 
     ext g
     sorry
 
-def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Function.Surjective Φ
+def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Surjective Φ
 
 -- prove that if A is a C^∞-Ring and I is an ideal of A, then A/I has a C^∞-Ring structure such that the projection A → A/I is a C^∞-Ring homomorphism
 
