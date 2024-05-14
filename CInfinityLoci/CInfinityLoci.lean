@@ -5,8 +5,6 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.InnerProductSpace.Calculus
 import Mathlib.Init.Function
 
-open Function
-
 -- namespace CinftyLoci
 
 variable (n m : ℕ)
@@ -168,7 +166,7 @@ theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! 
     ext g
     sorry
 
-def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Surjective Φ
+def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Function.Surjective Φ
 
 -- prove that if A is a C^∞-Ring and I is an ideal of A, then A/I has a C^∞-Ring structure such that the projection A → A/I is a C^∞-Ring homomorphism
 
