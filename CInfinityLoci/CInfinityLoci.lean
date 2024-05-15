@@ -141,11 +141,12 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
     rfl
   proj := by
     intro _ _
-    ext _
+    ext
     rw [dia_coe_comp, dia_coe_comp, pi0_eq_id, π]
     dsimp
     rename_i j
     rw [Fin.fin_one_eq_zero j]
+
 
 theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! Φ : CinftyRingHom C^∞(ℝ^d) A, (∀ i : Fin d, Φ (π i) = a i ) := by
   intro A _ a
@@ -154,6 +155,7 @@ theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! 
     intro n m F g
     ext i
     dsimp
+
     sorry -- apply CinftyRing.fnctr
 
 
@@ -164,7 +166,20 @@ theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! 
     rw [CinftyRing.proj i]
   · intro Ψ h
     ext g
-    sorry
+    let p : C^∞(ℝ^d)^d := (fun i ↦ π i)
+    have t₁ : g = intrprt g p 0 := by
+      simp [intrprt]
+      ext
+      simp [dia_coe_comp, pi0_eq_id]
+      rfl
+    nth_rw 1 [t₁]
+    calc
+      Ψ (intrprt g p 0) = (Ψ ∘ intrprt g p) 0 := rfl
+      _ = intrprt g (Ψ ∘ p) 0 := by rw [Ψ.compat]
+      _ = intrprt g a 0 := by
+        suffices t₂: Ψ ∘ p = a from by rw[t₂]
+        ext
+        exact h _
 
 def fin_gen (A: Type*) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Function.Surjective Φ
 
