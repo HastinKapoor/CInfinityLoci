@@ -147,7 +147,7 @@ instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
     rename_i j
     rw [Fin.fin_one_eq_zero j]
 
-
+-- Shows that C^∞(R^d) is a free C^infty-Ring on the d generators π 1, ... , π d : C^∞(ℝ^d)
 theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! Φ : CinftyRingHom C^∞(ℝ^d) A, (∀ i : Fin d, Φ (π i) = a i ) := by
   intro A _ a
   let Φ : CinftyRingHom C^∞(ℝ^d) A := by
