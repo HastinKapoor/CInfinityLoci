@@ -152,13 +152,22 @@ theorem free_CinftyRing (d: ℕ) : ∀ {A: Type*} [CinftyRing A] (a: A^d), ∃! 
   intro A _ a
   let Φ : CinftyRingHom C^∞(ℝ^d) A := by
     use fun f ↦ intrprt f a 0
-    intro n m F g
+    intro n m _ _
+    ext
+    simp [intrprt, fnctr, proj]
+    apply congrArg₂ _ _ rfl
     ext i
-    dsimp
-
-    sorry -- apply CinftyRing.fnctr
-
-
+    have h : ∀ (b : A^n) (j : Fin n), b j = intrprt (π j) b 0 := by simp [proj]
+    rw [h (intrprt _ a) i]
+    apply congr_fun
+    have t : ∀ (G: (A^d) → (A^n)) (H: (A^n) → (Fin 1 → A)) (b : (A^d)), H (G b) = (H ∘ G) b := by
+      intro _ _ _
+      rfl
+    rw [t _ (intrprt (π i)) a, ← fnctr]
+    apply congrArg₂ _ _ rfl
+    ext x j
+    rw [dia_coe_comp, π, Fin.fin_one_eq_zero j]
+    rfl
   use Φ
   constructor
   · intro i
