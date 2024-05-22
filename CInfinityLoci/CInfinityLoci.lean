@@ -78,11 +78,13 @@ instance {A: Type*} [CinftyRing A] : CommRing A where
     let c₁ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 1, contDiff_const⟩
     exact intrprt c₁ Fin.elim0 0
   add := by
-    let sm_mul : C^∞(ℝ^2) := by
-      use fun x ↦ (fun _ ↦ (x 0) * (x 1))
+    let sm_add : C^∞(ℝ^2) := by
+      use fun x ↦ (fun _ ↦ (x 0) + (x 1))
       apply contDiff_euclidean.2
       intro _
-      sorry -- convert ContDiff.mul (π (0: Fin 2)).2 (π (1: Fin 2)).2
+      have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
+      exact ContDiff.add (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
+
 
     intro a₀ a₁
     let a : Fin 2 → A := by
@@ -99,7 +101,22 @@ instance {A: Type*} [CinftyRing A] : CommRing A where
     let sm_neg : C^∞(ℝ^1) := ⟨fun x ↦ -x, contDiff_neg⟩
     exact fun a ↦ intrprt sm_neg (fun (_: Fin 1) ↦ a) 0
   nsmul := sorry
-  mul := sorry
+  mul := by
+    let sm_mul : C^∞(ℝ^2) := by
+      use fun x ↦ (fun _ ↦ (x 0) * (x 1))
+      apply contDiff_euclidean.2
+      intro _
+      have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
+      exact ContDiff.mul (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
+
+
+    intro a₀ a₁
+    let a : Fin 2 → A := by
+      intro i
+
+
+    sorry
+
   mul_assoc := sorry
   mul_comm := sorry
   zero_mul := sorry
