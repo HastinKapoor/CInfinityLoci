@@ -37,7 +37,7 @@ def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
 
 lemma pi0_eq_id : π (i: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
       ext x j
-      dsimp [π]
+      simp [π]
       rw [Fin.fin_one_eq_zero i, Fin.fin_one_eq_zero j]
 
 -- Defines composition as a map ⋄ : C^∞(ℝ^m, ℝ^k) × C^∞(ℝ^n, ℝ^m) → C^∞(ℝ^n, ℝ^k)
@@ -68,6 +68,23 @@ attribute [coe] CinftyRingHom.toFun
 -- define coercion to ℝ-algebra homomorphism?
 
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
+
+lemma fin1_iso {A : Type*} : (Fin 1 → A) ≃ A := {
+  toFun := (· 1)
+  invFun := fun a => (fun _ => a)
+  left_inv := by unfold Function.LeftInverse; intro x; ext n; simp; have h : n = 1 := sorry; rw [h]
+  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro x; rfl
+}
+
+lemma fin2_fun_iso {A B : Type*} : ((Fin 2 → A) → B) ≃ (A → A → B) := {
+  toFun := fun f => fun a1 a2 => sorry
+  invFun := (fun a => · (a 1) (a 2))
+  left_inv := sorry
+  right_inv := sorry
+
+}
+
+
 
 -- theorem saying that every C^∞-Ring is a commutative (unital) ring
 instance {A: Type*} [CinftyRing A] : CommRing A where
