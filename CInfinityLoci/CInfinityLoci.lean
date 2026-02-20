@@ -70,20 +70,25 @@ attribute [coe] CinftyRingHom.toFun
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
 
 lemma fin1_iso {A : Type*} : (Fin 1 → A) ≃ A := {
-  toFun := (· 1)
+  toFun := (· 0)
   invFun := fun a => (fun _ => a)
-  left_inv := by unfold Function.LeftInverse; intro x; ext n; simp; have h : n = 1 := sorry; rw [h]
-  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro x; rfl
+  left_inv := by unfold Function.LeftInverse; intro _; ext i; simp; match i with | 0 => rfl
+  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro _; rfl
 }
 
-lemma fin2_fun_iso {A B : Type*} : ((Fin 2 → A) → B) ≃ (A → A → B) := {
-  toFun := fun f => fun a1 a2 => sorry
-  invFun := (fun a => · (a 1) (a 2))
-  left_inv := sorry
-  right_inv := sorry
-
+lemma fin2_iso {A : Type*} : (Fin 2 → A) ≃ A × A := {
+  toFun := fun a => ⟨a 0, a 1⟩
+  invFun := fun ⟨a0, a1⟩ i => match i with | 0 => a0 | 1 => a1
+  left_inv := by unfold Function.LeftInverse; intro _; simp; ext i; match i with | 0 => rfl | 1 => rfl
+  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro _; rfl
 }
 
+lemma fun_of_cart_prod_iso {A B : Type*} : (A × A → B) ≃ (A → A → B) := {
+  toFun := (· ⟨·, ·⟩)
+  invFun := fun f a => f a.1 a.2
+  left_inv := by unfold Function.LeftInverse; intro f; ext _; rfl
+  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro f; ext; rfl
+}
 
 
 -- theorem saying that every C^∞-Ring is a commutative (unital) ring
