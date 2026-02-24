@@ -91,54 +91,57 @@ lemma fun_of_cart_prod_iso {A B : Type*} : (A × A → B) ≃ (A → A → B) :=
 }
 
 
+
+lemma A2toA1_iso {A : Type _} : ((Fin 2 → A) → (Fin 1 → A)) ≃ (A → A → A) := {
+  toFun := fun_of_cart_prod_iso ∘ (fin1_iso.toFun ∘ · ∘ fin2_iso.invFun)
+  invFun := fun f => (fin1_iso.invFun ∘ (fun_of_cart_prod_iso.invFun f) ∘ fin2_iso.toFun)
+  left_inv := by unfold Function.LeftInverse; intro f; unfold Function.comp; simp
+  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro f; unfold Function.comp; simp
+}
+
+def sm_add : C^∞(ℝ^2) := by
+  use fun x ↦ (fun _ ↦ (x 0) + (x 1))
+  apply contDiff_euclidean.2
+  intro _
+  have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
+  exact ContDiff.add (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
+
+def sm_mul : C^∞(ℝ^2) := by
+  use fun x ↦ (fun _ ↦ (x 0) * (x 1))
+  apply contDiff_euclidean.2
+  intro _
+  have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
+  exact ContDiff.mul (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
+
+def sm_neg : C^∞(ℝ^1) := ⟨fun x ↦ -x, contDiff_neg⟩
+
+def sm_one : C^∞(ℝ^0) := ⟨fun _ _ ↦ 1, contDiff_const⟩
+
+def sm_zero : C^∞(ℝ^0) := ⟨fun _ _ ↦ 0, contDiff_const⟩
+
+
+
+
 -- theorem saying that every C^∞-Ring is a commutative (unital) ring
-instance {A: Type*} [CinftyRing A] : CommRing A where
+instance {A: Type*} [CinftyRing A] : CommRing A := {
   zero := by
-    let c₀ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 0, contDiff_const⟩
-    exact intrprt c₀ Fin.elim0 0
+    exact intrprt sm_zero Fin.elim0 0
+    -- rewrite above proof
+
   one := by
-    let c₁ : C^∞(ℝ^0) := ⟨fun _ _ ↦ 1, contDiff_const⟩
-    exact intrprt c₁ Fin.elim0 0
-  add := by
-    let sm_add : C^∞(ℝ^2) := by
-      use fun x ↦ (fun _ ↦ (x 0) + (x 1))
-      apply contDiff_euclidean.2
-      intro _
-      have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
-      exact ContDiff.add (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
+    exact intrprt sm_one Fin.elim0 0
+    -- rewrite above proof
 
-
-    intro a₀ a₁
-    let a : Fin 2 → A := by
-      intro i
-
-
-
-    sorry
+  add := A2toA1_iso (intrprt sm_add)
   add_comm := sorry
   add_assoc := sorry
   zero_add := sorry
-  add_zero := sorry
-  neg := by
-    let sm_neg : C^∞(ℝ^1) := ⟨fun x ↦ -x, contDiff_neg⟩
-    exact fun a ↦ intrprt sm_neg (fun (_: Fin 1) ↦ a) 0
+  add_zero := by intro a; sorry
+
+  neg := fin1_iso.toFun ∘ (intrprt sm_neg) ∘ fin1_iso.invFun
   nsmul := sorry
-  mul := by
-    let sm_mul : C^∞(ℝ^2) := by
-      use fun x ↦ (fun _ ↦ (x 0) * (x 1))
-      apply contDiff_euclidean.2
-      intro _
-      have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
-      exact ContDiff.mul (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
 
-
-    intro a₀ a₁
-    let a : Fin 2 → A := by
-      intro i
-
-
-    sorry
-
+  mul := A2toA1_iso (intrprt sm_mul)
   mul_assoc := sorry
   mul_comm := sorry
   zero_mul := sorry
@@ -147,9 +150,9 @@ instance {A: Type*} [CinftyRing A] : CommRing A where
   mul_one := sorry
   left_distrib := sorry
   right_distrib := sorry
-  zsmul := sorry
+  zsmul := zsmulRec
   add_left_neg := sorry
-
+}
 
 -- theorem saying that every C^∞-Ring is an ℝ-algebra
 instance (A: Type*) [CinftyRing A] : Algebra ℝ A where
