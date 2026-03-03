@@ -72,31 +72,36 @@ attribute [coe] CinftyRingHom.toFun
 lemma fin1_iso {A : Type*} : (Fin 1 → A) ≃ A := {
   toFun := (· 0)
   invFun := fun a => (fun _ => a)
-  left_inv := by unfold Function.LeftInverse; intro _; ext i; simp; match i with | 0 => rfl
-  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro _; rfl
+  left_inv := by intro _; ext i; simp; match i with | 0 => rfl
+  right_inv := fun _ => rfl
 }
 
 lemma fin2_iso {A : Type*} : (Fin 2 → A) ≃ A × A := {
   toFun := fun a => ⟨a 0, a 1⟩
   invFun := fun ⟨a0, a1⟩ i => match i with | 0 => a0 | 1 => a1
-  left_inv := by unfold Function.LeftInverse; intro _; simp; ext i; match i with | 0 => rfl | 1 => rfl
-  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro _; rfl
+  left_inv := by intro _; ext i; match i with | 0 => rfl | 1 => rfl
+  right_inv := fun _ => rfl
 }
 
 lemma fun_of_cart_prod_iso {A B : Type*} : (A × A → B) ≃ (A → A → B) := {
   toFun := (· ⟨·, ·⟩)
   invFun := fun f a => f a.1 a.2
-  left_inv := by unfold Function.LeftInverse; intro f; ext _; rfl
-  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro f; ext; rfl
+  left_inv := by intro f; ext _; rfl
+  right_inv := by intro f; ext; rfl
 }
 
+lemma A0_iso {A : Type _} : (Fin 0 → A) ≃ Fin 1 := {
+  toFun := fun _ => 0
+  invFun := fun _ => (nomatch ·)
+  left_inv := by intro a; ext i; nomatch i
+  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro i; simp; rfl
+}
 
-
-lemma A2toA1_iso {A : Type _} : ((Fin 2 → A) → (Fin 1 → A)) ≃ (A → A → A) := {
+lemma A2toB1_iso {A B : Type _} : ((Fin 2 → A) → (Fin 1 → B)) ≃ (A → A → B) := {
   toFun := fun_of_cart_prod_iso ∘ (fin1_iso.toFun ∘ · ∘ fin2_iso.invFun)
   invFun := fun f => (fin1_iso.invFun ∘ (fun_of_cart_prod_iso.invFun f) ∘ fin2_iso.toFun)
-  left_inv := by unfold Function.LeftInverse; intro f; unfold Function.comp; simp
-  right_inv := by unfold Function.RightInverse; unfold Function.LeftInverse; intro f; unfold Function.comp; simp
+  left_inv := by intro f; unfold Function.comp; simp
+  right_inv := by intro f; unfold Function.comp; simp
 }
 
 def sm_add : C^∞(ℝ^2) := by
@@ -132,7 +137,7 @@ instance {A: Type*} [CinftyRing A] : CommRing A := {
     exact intrprt sm_one Fin.elim0 0
     -- rewrite above proof
 
-  add := A2toA1_iso (intrprt sm_add)
+  add := A2toB1_iso (intrprt sm_add)
   add_comm := sorry
   add_assoc := sorry
   zero_add := sorry
@@ -141,7 +146,7 @@ instance {A: Type*} [CinftyRing A] : CommRing A := {
   neg := fin1_iso.toFun ∘ (intrprt sm_neg) ∘ fin1_iso.invFun
   nsmul := sorry
 
-  mul := A2toA1_iso (intrprt sm_mul)
+  mul := A2toB1_iso (intrprt sm_mul)
   mul_assoc := sorry
   mul_comm := sorry
   zero_mul := sorry
