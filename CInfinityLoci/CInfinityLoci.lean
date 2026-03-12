@@ -23,9 +23,8 @@ instance {n m : ℕ} : CoeFun C^∞(ℝ^n, ℝ^m) (fun _ => (ℝ^n) → (ℝ^m))
 -- defines the ith projection map π i : ℝ^n → ℝ
 def π {n : ℕ} (i : Fin n) : C^∞(ℝ^n) := by
   use (fun x => (fun _ => x i))
-  have f : ContDiff ℝ ⊤ (id : (ℝ^n) → (ℝ^n)) := contDiff_id
   apply contDiff_euclidean.2
-  exact fun _ => contDiff_euclidean.1 f i
+  exact fun _ => contDiff_euclidean.1 contDiff_id i
 
 @[simp]
 lemma pi0_eq_id : π (i: Fin 1) = (id: (ℝ^1) → (ℝ^1)) := by
@@ -66,7 +65,7 @@ attribute [coe] CinftyRingHom.toFun
 lemma fin0_iso {A : Type _} : (Fin 0 → A) ≃ Fin 1 := {
   toFun := fun _ => 0
   invFun := fun _ => (nomatch ·)
-  left_inv := by intro a; ext i; nomatch i
+  left_inv := by intro _; ext i; nomatch i
   right_inv := by intro _; exact (Fin.fin_one_eq_zero _).symm
 }
 
@@ -79,7 +78,7 @@ lemma fin1_iso {A : Type _} : (Fin 1 → A) ≃ A := {
 
 lemma fin2_iso {A : Type _} : (Fin 2 → A) ≃ A × A := {
   toFun := fun a => ⟨a 0, a 1⟩
-  invFun := fun ⟨a0, a1⟩ i => match i with | 0 => a0 | 1 => a1
+  invFun := fun ⟨a₀, a₁⟩ i => match i with | 0 => a₀ | 1 => a₁
   left_inv := by intro _; ext i; match i with | 0 => rfl | 1 => rfl
   right_inv := fun _ => rfl
 }
@@ -87,49 +86,43 @@ lemma fin2_iso {A : Type _} : (Fin 2 → A) ≃ A × A := {
 lemma fun_of_cart_prod_iso {A B : Type _} : (A × A → B) ≃ (A → A → B) := {
   toFun := (· ⟨·, ·⟩)
   invFun := fun f a => f a.1 a.2
-  left_inv := by intro f; ext; rfl
-  right_inv := by intro f; ext; rfl
+  left_inv := by intro _; ext; rfl
+  right_inv := by intro _; ext; rfl
 }
 
 lemma A0toB1_iso {A B : Type _} : ((Fin 0 → A) → (Fin 1 → B)) ≃ B := {
   toFun := fun f => fin1_iso (fin1_iso (f ∘ fin0_iso.invFun))
   invFun := fun b => fin1_iso.invFun (fin1_iso.invFun b) ∘ fin0_iso
-  left_inv := by intro f; unfold Function.comp; simp
-  right_inv := by intro f; unfold Function.comp; simp
+  left_inv := by intro _; simp [Function.comp]
+  right_inv := by intro _; simp [Function.comp]
 }
 
 lemma A2toB1_iso {A B : Type _} : ((Fin 2 → A) → (Fin 1 → B)) ≃ (A → A → B) := {
   toFun := fun_of_cart_prod_iso ∘ (fin1_iso.toFun ∘ · ∘ fin2_iso.invFun)
   invFun := fun f => (fin1_iso.invFun ∘ (fun_of_cart_prod_iso.invFun f) ∘ fin2_iso.toFun)
-  left_inv := by intro f; unfold Function.comp; simp
-  right_inv := by intro f; unfold Function.comp; simp
+  left_inv := by intro _; simp [Function.comp]
+  right_inv := by intro _; simp [Function.comp]
 }
 
 def sm_add : C^∞(ℝ^2) := by
   use fun x => (fun _ => (x 0) + (x 1))
   apply contDiff_euclidean.2
   intro _
-  have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
-  exact ContDiff.add (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
+  exact ContDiff.add (contDiff_euclidean.1 contDiff_id 0) (contDiff_euclidean.1 contDiff_id 1)
 
 def sm_mul : C^∞(ℝ^2) := by
   use fun x => (fun _ => (x 0) * (x 1))
   apply contDiff_euclidean.2
   intro _
-  have h : ContDiff ℝ ⊤ (id : (ℝ^2) → (ℝ^2)) := contDiff_id
-  exact ContDiff.mul (contDiff_euclidean.1 h 0) (contDiff_euclidean.1 h 1)
+  exact ContDiff.mul (contDiff_euclidean.1 contDiff_id 0) (contDiff_euclidean.1 contDiff_id 1)
 
 def sm_twist : C^∞(ℝ^2, ℝ^2) := by
   use fun x => (match · with | 0 => x 1 | 1 => x 0)
   apply contDiff_euclidean.2
   intro i
   match i with
-  | 0 => simp; sorry
-
-
-  | 1 => simp; sorry
-
-
+  | 0 => apply fun _ => contDiff_euclidean.1 contDiff_id 1
+  | 1 => apply fun _ => contDiff_euclidean.1 contDiff_id 0
 
 def sm_neg : C^∞(ℝ^1) := ⟨fun x => -x, contDiff_neg⟩
 
@@ -145,9 +138,10 @@ instance {A: Type _} [CinftyRing A] : CommRing A := {
   one := A0toB1_iso (intrprt sm_one)
   add := A2toB1_iso (intrprt sm_add)
   add_comm := by
-
     have h : sm_add = sm_add ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_add]; linarith
     have h2 : (intrprt (sm_add ⋄ sm_twist) = intrprt sm_add ∘ intrprt sm_twist) := fnctr sm_twist sm_add;
+    
+
     sorry
 
 
