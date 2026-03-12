@@ -58,9 +58,72 @@ instance [CinftyRing A] [CinftyRing B] : CoeFun (CinftyRingHom A B) (fun _ => A 
 
 attribute [coe] CinftyRingHom.toFun
 
--- define coercion to ℝ-algebra homomorphism?
-
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
+
+-- Shows that C^∞(ℝ^d) is a C^∞-Ring
+instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
+  intrprt := by
+    intro n _ F g i
+    have G : C^∞(ℝ^d, ℝ^n) := by
+      use fun x => (fun j => g j x 0)
+      apply contDiff_euclidean.2
+      intro j
+      exact contDiff_euclidean.1 (g j).2 0
+    exact (π i) ⋄ F ⋄ G
+  fnctr := by
+    intro _ _ _ _ _
+    rfl
+  proj := by
+    intro _ _
+    ext
+    simp[π]
+    rename_i j
+    rw [Fin.fin_one_eq_zero j]
+
+-- Shows that C^∞(R^d) is a free C^infty-Ring on the d generators π 1, ... , π d : C^∞(ℝ^d)
+theorem free_CinftyRing (d : ℕ) : ∀ {A : Type _} [CinftyRing A] (a : A^d), ∃! Φ : CinftyRingHom C^∞(ℝ^d) A, (∀ i : Fin d, Φ (π i) = a i ) := by
+  intro A _ a
+  let Φ : CinftyRingHom C^∞(ℝ^d) A := by
+    use fun f => intrprt f a 0
+    intro n m _ _
+    ext
+    simp [intrprt, fnctr, proj]
+    apply congrArg₂ _ _ rfl
+    ext i
+    have h : ∀ (b : A^n) (j : Fin n), b j = intrprt (π j) b 0 := by simp [proj]
+    rw [h (intrprt _ a) i]
+    apply congr_fun
+    have t : ∀ (G: (A^d) → (A^n)) (H: (A^n) → (Fin 1 → A)) (b : (A^d)), H (G b) = (H ∘ G) b := by
+      intro _ _ _
+      rfl
+    rw [t _ (intrprt (π i)) a, ← fnctr]
+    apply congrArg₂ _ _ rfl
+    ext _ j
+    simp [π]
+    rw [Fin.fin_one_eq_zero j]
+  use Φ
+  constructor
+  · intro i
+    dsimp
+    rw [CinftyRing.proj i]
+  · intro Ψ h
+    ext g
+    let p : C^∞(ℝ^d)^d := (fun i => π i)
+    have t₁ : g = intrprt g p 0 := by
+      ext
+      simp [intrprt]
+      rfl
+    nth_rw 1 [t₁]
+    calc
+      Ψ (intrprt g p 0) = (Ψ ∘ intrprt g p) 0 := rfl
+      _ = intrprt g (Ψ ∘ p) 0 := by rw [Ψ.compat]
+      _ = intrprt g a 0 := by
+        suffices t₂: Ψ ∘ p = a from by rw[t₂]
+        ext
+        exact h _
+
+
+
 
 lemma fin0_iso {A : Type _} : (Fin 0 → A) ≃ Fin 1 := {
   toFun := fun _ => 0
@@ -133,36 +196,27 @@ def sm_zero : C^∞(ℝ^0) := ⟨fun _ _ => 0, contDiff_const⟩
 
 -- theorem saying that every C^∞-Ring is a commutative (unital) ring
 noncomputable
-instance {A: Type _} [CinftyRing A] : CommRing A := {
+instance {A: Type u} [CinftyRing.{u} A] : CommRing.{u} A := {
   zero := A0toB1_iso (intrprt sm_zero)
   one := A0toB1_iso (intrprt sm_one)
   add := A2toB1_iso (intrprt sm_add)
-  add_comm := by
+  add_comm :=
     have h : sm_add = sm_add ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_add]; linarith
-    have h2 : (intrprt (sm_add ⋄ sm_twist) = intrprt sm_add ∘ intrprt sm_twist) := fnctr sm_twist sm_add;
-    
-
+    have h2 : (intrprt (sm_add ⋄ sm_twist) = intrprt sm_add ∘ intrprt sm_twist) := fnctr sm_twist sm_add
     sorry
-
-
-
-
   add_assoc := sorry
   zero_add := sorry
   add_zero := sorry
-
   neg := fin1_iso.toFun ∘ (intrprt sm_neg) ∘ fin1_iso.invFun
   nsmul := sorry
-
   mul := A2toB1_iso (intrprt sm_mul)
   mul_assoc := sorry
-  mul_comm := by
+  mul_comm :=
               have h : sm_mul = sm_mul ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_mul]; linarith
               /-
               have h2 : (intrprt (sm_mul ⋄ sm_twist) = intrprt sm_mul ∘ intrprt sm_twist) := fnctr sm_twist sm_mul
               -/
               sorry
-
   zero_mul := sorry
   mul_zero := sorry
   one_mul := sorry
@@ -185,69 +239,8 @@ instance (A: Type _) [CinftyRing A] : Algebra ℝ A where
   smul_def' := sorry
 
 -- theorem saying that C^∞-Ring homomorphism is a unital ℝ-algebra homomorphism
+-- define coercion to ℝ-algebra homomorphism?
 
--- Shows that C^∞(ℝ^d) is a C^∞-Ring
-instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
-  intrprt := by
-    intro n _ F g i
-    have G : C^∞(ℝ^d, ℝ^n) := by
-      use fun x => (fun j => g j x 0)
-      apply contDiff_euclidean.2
-      intro j
-      apply contDiff_euclidean.1
-      exact (g j).2
-    exact (π i) ⋄ F ⋄ G
-  fnctr := by
-    intro _ _ _ _ _
-    rfl
-  proj := by
-    intro _ _
-    ext
-    simp[π]
-    rename_i j
-    rw [Fin.fin_one_eq_zero j]
-
--- Shows that C^∞(R^d) is a free C^infty-Ring on the d generators π 1, ... , π d : C^∞(ℝ^d)
-theorem free_CinftyRing (d: ℕ) : ∀ {A: Type _} [CinftyRing A] (a: A^d), ∃! Φ : CinftyRingHom C^∞(ℝ^d) A, (∀ i : Fin d, Φ (π i) = a i ) := by
-  intro A _ a
-  let Φ : CinftyRingHom C^∞(ℝ^d) A := by
-    use fun f => intrprt f a 0
-    intro n m _ _
-    ext
-    simp [intrprt, fnctr, proj]
-    apply congrArg₂ _ _ rfl
-    ext i
-    have h : ∀ (b : A^n) (j : Fin n), b j = intrprt (π j) b 0 := by simp [proj]
-    rw [h (intrprt _ a) i]
-    apply congr_fun
-    have t : ∀ (G: (A^d) → (A^n)) (H: (A^n) → (Fin 1 → A)) (b : (A^d)), H (G b) = (H ∘ G) b := by
-      intro _ _ _
-      rfl
-    rw [t _ (intrprt (π i)) a, ← fnctr]
-    apply congrArg₂ _ _ rfl
-    ext _ j
-    simp [π]
-    rw [Fin.fin_one_eq_zero j]
-  use Φ
-  constructor
-  · intro i
-    dsimp
-    rw [CinftyRing.proj i]
-  · intro Ψ h
-    ext g
-    let p : C^∞(ℝ^d)^d := (fun i => π i)
-    have t₁ : g = intrprt g p 0 := by
-      ext
-      simp [intrprt]
-      rfl
-    nth_rw 1 [t₁]
-    calc
-      Ψ (intrprt g p 0) = (Ψ ∘ intrprt g p) 0 := rfl
-      _ = intrprt g (Ψ ∘ p) 0 := by rw [Ψ.compat]
-      _ = intrprt g a 0 := by
-        suffices t₂: Ψ ∘ p = a from by rw[t₂]
-        ext
-        exact h _
 
 def fin_gen (A: Type _) [CinftyRing A] : Prop := ∃ (d : ℕ) (Φ: CinftyRingHom C^∞(ℝ^d) A), Function.Surjective Φ
 
