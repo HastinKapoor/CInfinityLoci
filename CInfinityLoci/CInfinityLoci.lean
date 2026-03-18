@@ -7,8 +7,6 @@ import Mathlib.Init.Function
 
 -- namespace CinftyLoci
 
-variable (n m : ℕ)
-
 notation A"^"n => Fin n → A
 notation "ℝ^"n => EuclideanSpace ℝ (Fin n)
 notation "C^∞(ℝ^"n", ℝ^"m")" => {f: (ℝ^n) → (ℝ^m) // ContDiff ℝ ⊤ f }
@@ -37,7 +35,7 @@ def comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : C^�
 infixr:75 " ⋄ " => comp
 
 @[simp]
-lemma dia_coe_comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : (G ⋄ F).1 = G.1 ∘ F.1 := by rfl
+lemma dia_coe_comp {n m k: ℕ} (G : C^∞(ℝ^m, ℝ^k)) (F : C^∞(ℝ^n, ℝ^m)) : (G ⋄ F).1 = G.1 ∘ F.1 := rfl
 
 -- Defines the class C^∞-Rings
 class CinftyRing (A: Type _) where
@@ -60,24 +58,42 @@ attribute [coe] CinftyRingHom.toFun
 
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
 
+
+def sm_duple {n m k : ℕ} (F : C^∞(ℝ^n, ℝ^m)) (G : C^∞(ℝ^n, ℝ^k)) : C^∞(ℝ^n, ℝ^(m+k)) :=
+  sorry
+
+
+def sm_tuple {n m : ℕ} (g : Fin n → C^∞(ℝ^m)) : C^∞(ℝ^m, ℝ^n) := by
+  use fun x => (fun j => g j x 0)
+  apply contDiff_euclidean.2
+  intro j
+  exact contDiff_euclidean.1 (g j).2 0
+
+@[simp]
+lemma intrprt_tuple {n m : ℕ} {A : Type _} [CinftyRing A] (g : Fin n → C^∞(ℝ^m)) : intrprt (sm_tuple g) = fun (a : (Fin m → A)) i => (intrprt (g i) a) 0 := by
+  ext a i
+  let G := sm_tuple g
+  calc intrprt (sm_tuple g) a i = intrprt G a i := rfl
+    _ = (fun b (j : Fin n) => b i) ((intrprt G) a) i := rfl
+    _ = (intrprt (π i)) (intrprt G a) 0 := by rw[proj i]
+    _ = (intrprt (π i) ∘ intrprt G) a 0 := rfl
+    _ = (intrprt (π i ⋄ G)) a 0 := by rw[fnctr]
+    _ = (intrprt (g i)) a 0 := by congr; sorry
+
+
+
+
+
 -- Shows that C^∞(ℝ^d) is a C^∞-Ring
 instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
   intrprt := by
     intro n _ F g i
-    have G : C^∞(ℝ^d, ℝ^n) := by
-      use fun x => (fun j => g j x 0)
-      apply contDiff_euclidean.2
-      intro j
-      exact contDiff_euclidean.1 (g j).2 0
-    exact (π i) ⋄ F ⋄ G
-  fnctr := by
-    intro _ _ _ _ _
-    rfl
+    exact (π i) ⋄ F ⋄ (sm_tuple g)
+  fnctr := by intros; rfl
   proj := by
-    intro _ _
-    ext
-    simp[π]
-    rename_i j
+    intros
+    ext _ _ _ j
+    simp [π, sm_tuple]
     rw [Fin.fin_one_eq_zero j]
 
 -- Shows that C^∞(R^d) is a free C^infty-Ring on the d generators π 1, ... , π d : C^∞(ℝ^d)
@@ -88,39 +104,19 @@ theorem free_CinftyRing (d : ℕ) : ∀ {A : Type _} [CinftyRing A] (a : A^d), �
     intro n m _ _
     ext
     simp [intrprt, fnctr, proj]
-    apply congrArg₂ _ _ rfl
-    ext i
-    have h : ∀ (b : A^n) (j : Fin n), b j = intrprt (π j) b 0 := by simp [proj]
-    rw [h (intrprt _ a) i]
-    apply congr_fun
-    have t : ∀ (G: (A^d) → (A^n)) (H: (A^n) → (Fin 1 → A)) (b : (A^d)), H (G b) = (H ∘ G) b := by
-      intro _ _ _
-      rfl
-    rw [t _ (intrprt (π i)) a, ← fnctr]
-    apply congrArg₂ _ _ rfl
-    ext _ j
-    simp [π]
-    rw [Fin.fin_one_eq_zero j]
+    rfl
   use Φ
   constructor
-  · intro i
-    dsimp
-    rw [CinftyRing.proj i]
+  · simp [CinftyRing.proj]
   · intro Ψ h
     ext g
     let p : C^∞(ℝ^d)^d := (fun i => π i)
-    have t₁ : g = intrprt g p 0 := by
-      ext
-      simp [intrprt]
-      rfl
+    have t₁ : g = intrprt g p 0 := by ext; simp [intrprt]; rfl
     nth_rw 1 [t₁]
     calc
       Ψ (intrprt g p 0) = (Ψ ∘ intrprt g p) 0 := rfl
       _ = intrprt g (Ψ ∘ p) 0 := by rw [Ψ.compat]
-      _ = intrprt g a 0 := by
-        suffices t₂: Ψ ∘ p = a from by rw[t₂]
-        ext
-        exact h _
+      _ = intrprt g a 0 := by congr; ext; exact h _
 
 
 
@@ -190,9 +186,9 @@ def sm_twist : C^∞(ℝ^2, ℝ^2) := by
 @[simp]
 lemma intrprt_twist {A : Type _} [CinftyRing A] : (intrprt sm_twist) = fun a : (Fin 2 → A) => (match · with | 0 => a 1 | 1 => a 0) := by
   ext a i
-  calc intrprt sm_twist a i = (fun b (j : Fin 2) => b i) ((intrprt sm_twist) a) 0 := by rfl
+  calc intrprt sm_twist a i = (fun b (j : Fin 2) => b i) ((intrprt sm_twist) a) 0 := rfl
     _ = (intrprt (π i)) (intrprt sm_twist a) 0 := by rw[proj i]
-    _ = (intrprt (π i) ∘ intrprt sm_twist) a 0 := by rfl
+    _ = (intrprt (π i) ∘ intrprt sm_twist) a 0 := rfl
     _ = (intrprt (π i ⋄ sm_twist)) a 0 := by rw[fnctr]
   match i with
   | 0 => have h : π 0 ⋄ sm_twist = π 1 := by ext; rfl
