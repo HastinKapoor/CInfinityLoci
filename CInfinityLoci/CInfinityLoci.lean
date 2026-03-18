@@ -204,16 +204,30 @@ def sm_one : C^∞(ℝ^0) := ⟨fun _ _ => 1, contDiff_const⟩
 
 def sm_zero : C^∞(ℝ^0) := ⟨fun _ _ => 0, contDiff_const⟩
 
-noncomputable
-instance {A : Type _} [CinftyRing A] : AddZeroClass A := {
-  zero := A0toB1_iso (intrprt sm_zero)
+
+
+noncomputable instance {A : Type _} [CinftyRing A] : Add A := {
   add := A2toB1_iso (intrprt sm_add)
+}
+
+noncomputable instance {A : Type _} [CinftyRing A] : Zero A := {
+  zero := A0toB1_iso (intrprt sm_zero)
+}
+
+
+lemma test {A : Type _} [CinftyRing A] : ∀ a : A, a + 0 = a := by
+  intro a
+  show @Zero.zero A _
+  unfold Add.add
+
+
+
+noncomputable instance {A : Type _} [CinftyRing A] : AddZeroClass A := {
   zero_add := sorry
   add_zero := sorry
 }
 
-noncomputable
-instance {A : Type _} [CinftyRing A] : Neg A := {
+noncomputable instance {A : Type _} [CinftyRing A] : Neg A := {
   neg := fin1_iso.toFun ∘ (intrprt sm_neg) ∘ fin1_iso.invFun
 }
 
