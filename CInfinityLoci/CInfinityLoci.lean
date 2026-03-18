@@ -59,18 +59,29 @@ attribute [coe] CinftyRingHom.toFun
 -- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
 
 
+
+/-
 def sm_duple {n m k : ℕ} (F : C^∞(ℝ^n, ℝ^m)) (G : C^∞(ℝ^n, ℝ^k)) : C^∞(ℝ^n, ℝ^(m+k)) :=
   sorry
+-/
 
 
-def sm_tuple {n m : ℕ} (g : Fin n → C^∞(ℝ^m)) : C^∞(ℝ^m, ℝ^n) := by
+
+def sm_tuple {n m : ℕ} (g : C^∞(ℝ^m)^n) : C^∞(ℝ^m, ℝ^n) := by
   use fun x => (fun j => g j x 0)
   apply contDiff_euclidean.2
   intro j
   exact contDiff_euclidean.1 (g j).2 0
 
 @[simp]
-lemma intrprt_tuple {n m : ℕ} {A : Type _} [CinftyRing A] (g : Fin n → C^∞(ℝ^m)) : intrprt (sm_tuple g) = fun (a : (Fin m → A)) i => (intrprt (g i) a) 0 := by
+lemma proj_tuple {n m : ℕ} (g : C^∞(ℝ^m)^n) (i : Fin n) : (π i) ⋄ (sm_tuple g) = g i := by
+  ext _ i
+  simp [sm_tuple, π]
+  rw [Fin.fin_one_eq_zero i]
+
+@[simp]
+lemma intrprt_tuple {n m : ℕ} {A : Type _} [CinftyRing A] (g : C^∞(ℝ^m)^n) :
+      intrprt (sm_tuple g) = fun (a : (Fin m → A)) i => (intrprt (g i) a) 0 := by
   ext a i
   let G := sm_tuple g
   calc intrprt (sm_tuple g) a i = intrprt G a i := rfl
@@ -78,7 +89,7 @@ lemma intrprt_tuple {n m : ℕ} {A : Type _} [CinftyRing A] (g : Fin n → C^∞
     _ = (intrprt (π i)) (intrprt G a) 0 := by rw[proj i]
     _ = (intrprt (π i) ∘ intrprt G) a 0 := rfl
     _ = (intrprt (π i ⋄ G)) a 0 := by rw[fnctr]
-    _ = (intrprt (g i)) a 0 := by congr; sorry
+    _ = (intrprt (g i)) a 0 := by congr; exact proj_tuple g i
 
 
 
@@ -111,10 +122,9 @@ theorem free_CinftyRing (d : ℕ) : ∀ {A : Type _} [CinftyRing A] (a : A^d), �
   · intro Ψ h
     ext g
     let p : C^∞(ℝ^d)^d := (fun i => π i)
-    have t₁ : g = intrprt g p 0 := by ext; simp [intrprt]; rfl
-    nth_rw 1 [t₁]
     calc
-      Ψ (intrprt g p 0) = (Ψ ∘ intrprt g p) 0 := rfl
+      Ψ g = Ψ (intrprt g p 0) := by congr; ext; simp [intrprt]; rfl
+      _ = (Ψ ∘ intrprt g p) 0 := rfl
       _ = intrprt g (Ψ ∘ p) 0 := by rw [Ψ.compat]
       _ = intrprt g a 0 := by congr; ext; exact h _
 
@@ -175,26 +185,18 @@ def sm_mul : C^∞(ℝ^2) := by
   intro _
   exact ContDiff.mul (contDiff_euclidean.1 contDiff_id 0) (contDiff_euclidean.1 contDiff_id 1)
 
-def sm_twist : C^∞(ℝ^2, ℝ^2) := by
-  use fun x => (match · with | 0 => x 1 | 1 => x 0)
-  apply contDiff_euclidean.2
-  intro i
-  match i with
-  | 0 => apply fun _ => contDiff_euclidean.1 contDiff_id 1
-  | 1 => apply fun _ => contDiff_euclidean.1 contDiff_id 0
+def sm_twist : C^∞(ℝ^2, ℝ^2) := sm_tuple (match · with | 0 => π 1 | 1 => π 0)
+
 
 @[simp]
-lemma intrprt_twist {A : Type _} [CinftyRing A] : (intrprt sm_twist) = fun a : (Fin 2 → A) => (match · with | 0 => a 1 | 1 => a 0) := by
-  ext a i
-  calc intrprt sm_twist a i = (fun b (j : Fin 2) => b i) ((intrprt sm_twist) a) 0 := rfl
-    _ = (intrprt (π i)) (intrprt sm_twist a) 0 := by rw[proj i]
-    _ = (intrprt (π i) ∘ intrprt sm_twist) a 0 := rfl
-    _ = (intrprt (π i ⋄ sm_twist)) a 0 := by rw[fnctr]
-  match i with
-  | 0 => have h : π 0 ⋄ sm_twist = π 1 := by ext; rfl
-         rw[h, proj]
-  | 1 => have h : π 1 ⋄ sm_twist = π 0 := by ext; rfl
-         rw[h, proj]
+lemma intrprt_twist {A : Type _} [inst : CinftyRing A] : (inst.intrprt sm_twist) = fun a => (match · with | 0 => a 1 | 1 => a 0) := by
+  simp [sm_twist]
+  ext _ i
+  fin_cases i <;> simp [proj]
+
+
+
+
 
 def sm_neg : C^∞(ℝ^1) := ⟨fun x => -x, contDiff_neg⟩
 
