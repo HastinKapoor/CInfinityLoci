@@ -206,28 +206,41 @@ def sm_one : C^∞(ℝ^0) := ⟨fun _ _ => 1, contDiff_const⟩
 
 def sm_zero : C^∞(ℝ^0) := ⟨fun _ _ => 0, contDiff_const⟩
 
+noncomputable
+instance {A : Type _} [CinftyRing A] : AddZeroClass A := {
+  zero := A0toB1_iso (intrprt sm_zero)
+  add := A2toB1_iso (intrprt sm_add)
+  zero_add := sorry
+  add_zero := sorry
+}
+
+noncomputable
+instance {A : Type _} [CinftyRing A] : Neg A := {
+  neg := fin1_iso.toFun ∘ (intrprt sm_neg) ∘ fin1_iso.invFun
+}
+
+noncomputable
+instance {A : Type _} [CinftyRing A] : AddCommGroup A := {
+  add_assoc := sorry
+  zero_add := sorry
+  add_zero := sorry
+  nsmul := nsmulRec
+  zsmul := zsmulRec
+  add_left_neg := sorry
+  add_comm :=
+    have h0 : sm_add = sm_add ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_add]; linarith
+    have h := fnctr sm_twist sm_add
+    by rw[←h0] at h
+    sorry
+}
+
+
+
 
 -- theorem saying that every C^∞-Ring is a commutative (unital) ring
 noncomputable
 instance {A: Type u} [CinftyRing.{u} A] : CommRing.{u} A := {
-  zero := A0toB1_iso (intrprt sm_zero)
   one := A0toB1_iso (intrprt sm_one)
-  add := A2toB1_iso (intrprt sm_add)
-  add_comm := by
-    have h0 : sm_add = sm_add ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_add]; linarith
-    have h := fnctr sm_twist sm_add
-    rw[←h0] at h
-    intro a b
-    unfold add
-
-
-
-
-    sorry
-  add_assoc := sorry
-  zero_add := sorry
-  add_zero := sorry
-  neg := fin1_iso.toFun ∘ (intrprt sm_neg) ∘ fin1_iso.invFun
   nsmul := sorry
   mul := A2toB1_iso (intrprt sm_mul)
   mul_assoc := sorry
@@ -243,7 +256,6 @@ instance {A: Type u} [CinftyRing.{u} A] : CommRing.{u} A := {
   mul_one := sorry
   left_distrib := sorry
   right_distrib := sorry
-  zsmul := zsmulRec
   add_left_neg := sorry
 }
 
