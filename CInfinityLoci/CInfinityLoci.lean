@@ -187,6 +187,19 @@ def sm_twist : C^∞(ℝ^2, ℝ^2) := by
   | 0 => apply fun _ => contDiff_euclidean.1 contDiff_id 1
   | 1 => apply fun _ => contDiff_euclidean.1 contDiff_id 0
 
+@[simp]
+lemma intrprt_twist {A : Type _} [CinftyRing A] : (intrprt sm_twist) = fun a : (Fin 2 → A) => (match · with | 0 => a 1 | 1 => a 0) := by
+  ext a i
+  calc intrprt sm_twist a i = (fun b (j : Fin 2) => b i) ((intrprt sm_twist) a) 0 := by rfl
+    _ = (intrprt (π i)) (intrprt sm_twist a) 0 := by rw[proj i]
+    _ = (intrprt (π i) ∘ intrprt sm_twist) a 0 := by rfl
+    _ = (intrprt (π i ⋄ sm_twist)) a 0 := by rw[fnctr]
+  match i with
+  | 0 => have h : π 0 ⋄ sm_twist = π 1 := by ext; rfl
+         rw[h, proj]
+  | 1 => have h : π 1 ⋄ sm_twist = π 0 := by ext; rfl
+         rw[h, proj]
+
 def sm_neg : C^∞(ℝ^1) := ⟨fun x => -x, contDiff_neg⟩
 
 def sm_one : C^∞(ℝ^0) := ⟨fun _ _ => 1, contDiff_const⟩
@@ -200,9 +213,16 @@ instance {A: Type u} [CinftyRing.{u} A] : CommRing.{u} A := {
   zero := A0toB1_iso (intrprt sm_zero)
   one := A0toB1_iso (intrprt sm_one)
   add := A2toB1_iso (intrprt sm_add)
-  add_comm :=
-    have h : sm_add = sm_add ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_add]; linarith
-    have h2 : (intrprt (sm_add ⋄ sm_twist) = intrprt sm_add ∘ intrprt sm_twist) := fnctr sm_twist sm_add
+  add_comm := by
+    have h0 : sm_add = sm_add ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_add]; linarith
+    have h := fnctr sm_twist sm_add
+    rw[←h0] at h
+    intro a b
+    unfold add
+
+
+
+
     sorry
   add_assoc := sorry
   zero_add := sorry
