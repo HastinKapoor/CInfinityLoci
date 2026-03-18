@@ -168,13 +168,13 @@ lemma A2toB1_iso {A B : Type _} : ((Fin 2 → A) → (Fin 1 → B)) ≃ (A → A
 }
 
 def sm_add : C^∞(ℝ^2) := by
-  use fun x => (fun _ => (x 0) + (x 1))
+  use fun x _ => (x 0) + (x 1)
   apply contDiff_euclidean.2
   intro _
   exact ContDiff.add (contDiff_euclidean.1 contDiff_id 0) (contDiff_euclidean.1 contDiff_id 1)
 
 def sm_mul : C^∞(ℝ^2) := by
-  use fun x => (fun _ => (x 0) * (x 1))
+  use fun x _ => (x 0) * (x 1)
   apply contDiff_euclidean.2
   intro _
   exact ContDiff.mul (contDiff_euclidean.1 contDiff_id 0) (contDiff_euclidean.1 contDiff_id 1)
