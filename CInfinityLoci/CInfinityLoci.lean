@@ -56,14 +56,18 @@ instance [CinftyRing A] [CinftyRing B] : CoeFun (CinftyRingHom A B) (fun _ => A 
 
 attribute [coe] CinftyRingHom.toFun
 
--- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms
+-- Show that compositions of C^∞-Ring homomorphisms are C^∞-Ring homomorphisms?
 
 
 
 /-
 def sm_duple {n m k : ℕ} (F : C^∞(ℝ^n, ℝ^m)) (G : C^∞(ℝ^n, ℝ^k)) : C^∞(ℝ^n, ℝ^(m+k)) :=
   sorry
+
+def sm_prod {n m j k : ℕ} (F : C^∞(ℝ^n, ℝ^j)) (G : C^∞(ℝ^m, ℝ^k)) : C^∞(ℝ^(n+m), ℝ^(j+k)) := by
+  sorry
 -/
+
 
 
 
@@ -125,21 +129,21 @@ theorem free_CinftyRing (d : ℕ) : ∀ {A : Type _} [CinftyRing A] (a : A^d), �
 
 
 
-lemma fin0_iso {A : Type _} : (Fin 0 → A) ≃ Fin 1 := {
+lemma A0_iso {A : Type _} : (Fin 0 → A) ≃ Fin 1 := {
   toFun := fun _ => 0
   invFun := fun _ => (nomatch ·)
   left_inv := by intro _; ext i; nomatch i
   right_inv := by intro _; exact (Fin.fin_one_eq_zero _).symm
 }
 
-lemma fin1_iso {A : Type _} : (Fin 1 → A) ≃ A := {
+lemma A1_iso {A : Type _} : (Fin 1 → A) ≃ A := {
   toFun := (· 0)
   invFun := fun a => (fun _ => a)
   left_inv := by intro _; ext i; simp; match i with | 0 => rfl
   right_inv := fun _ => rfl
 }
 
-lemma fin2_iso {A : Type _} : (Fin 2 → A) ≃ A × A := {
+lemma A2_iso {A : Type _} : (Fin 2 → A) ≃ A × A := {
   toFun := fun a => ⟨a 0, a 1⟩
   invFun := fun ⟨a₀, a₁⟩ i => match i with | 0 => a₀ | 1 => a₁
   left_inv := by intro _; ext i; match i with | 0 => rfl | 1 => rfl
@@ -154,15 +158,15 @@ lemma fun_of_cart_prod_iso {A B : Type _} : (A × A → B) ≃ (A → A → B) :
 }
 
 lemma A0toB1_iso {A B : Type _} : ((Fin 0 → A) → (Fin 1 → B)) ≃ B := {
-  toFun := fun f => fin1_iso (fin1_iso (f ∘ fin0_iso.invFun))
-  invFun := fun b => fin1_iso.invFun (fin1_iso.invFun b) ∘ fin0_iso
+  toFun := fun f => A1_iso (A1_iso (f ∘ A0_iso.invFun))
+  invFun := fun b => A1_iso.invFun (A1_iso.invFun b) ∘ A0_iso
   left_inv := by intro _; simp [Function.comp]
   right_inv := by intro _; simp [Function.comp]
 }
 
 lemma A2toB1_iso {A B : Type _} : ((Fin 2 → A) → (Fin 1 → B)) ≃ (A → A → B) := {
-  toFun := fun_of_cart_prod_iso ∘ (fin1_iso.toFun ∘ · ∘ fin2_iso.invFun)
-  invFun := fun f => (fin1_iso.invFun ∘ (fun_of_cart_prod_iso.invFun f) ∘ fin2_iso.toFun)
+  toFun := fun_of_cart_prod_iso ∘ (A1_iso.toFun ∘ · ∘ A2_iso.invFun)
+  invFun := fun f => (A1_iso.invFun ∘ (fun_of_cart_prod_iso.invFun f) ∘ A2_iso.toFun)
   left_inv := by intro _; simp [Function.comp]
   right_inv := by intro _; simp [Function.comp]
 }
@@ -183,16 +187,20 @@ def sm_twist : C^∞(ℝ^2, ℝ^2) := sm_tuple (match · with | 0 => π 1 | 1 =>
 
 def sm_neg : C^∞(ℝ^1) := ⟨fun x => -x, contDiff_neg⟩
 
-def sm_one : C^∞(ℝ^0) := ⟨fun _ _ => 1, contDiff_const⟩
+def const_one (n : ℕ) : C^∞(ℝ^n) := ⟨fun _ _ => 1, contDiff_const⟩
+def sm_one := const_one 0
 
+def const_zero (n : ℕ) : C^∞(ℝ^n) := ⟨fun _ _ => 0, contDiff_const⟩
 def sm_zero : C^∞(ℝ^0) := ⟨fun _ _ => 0, contDiff_const⟩
 
+def sm_point (n : ℕ) : C^∞(ℝ^n, ℝ^0) := ⟨fun _ => (nomatch ·), contDiff_const⟩
 
 @[simp]
 lemma intrprt_twist {A : Type _} [inst : CinftyRing A] : (inst.intrprt sm_twist) = fun a => (match · with | 0 => a 1 | 1 => a 0) := by
   simp [sm_twist]
   ext _ i
   fin_cases i <;> simp [proj]
+
 
 
 
@@ -203,6 +211,28 @@ noncomputable instance {A : Type _} [CinftyRing A] : Zero A := {
 noncomputable instance {A : Type _} [CinftyRing A] : One A := {
   one := A0toB1_iso (intrprt sm_one)
 }
+
+@[simp]
+lemma intrprt_const_zero {A : Type _} [inst : CinftyRing A] {n : ℕ} : inst.intrprt (const_zero n) = fun _ _ => 0 := by
+  ext a i
+  have h : const_zero n = sm_zero ⋄ (sm_point n) := by ext; rfl
+  calc
+    intrprt (const_zero n) a i = (inst.intrprt sm_zero) (inst.intrprt (sm_point n) a) i := by simp [h, fnctr]
+    _ = (inst.intrprt sm_zero) (A0_iso.invFun 0) i := by congr; ext j; nomatch j
+    _ = A0toB1_iso (intrprt sm_zero) := by rw [Fin.fin_one_eq_zero i]; unfold A0toB1_iso; unfold A1_iso; rfl
+    _ = 0 := rfl
+
+@[simp]
+lemma intrprt_const_one {A : Type _} [inst : CinftyRing A] {n : ℕ} : inst.intrprt (const_one n) = fun _ _ => 1 := by
+  ext a i
+  have h : const_one n = sm_one ⋄ (sm_point n) := by ext; rfl
+  calc
+    intrprt (const_one n) a i = (inst.intrprt sm_one) (inst.intrprt (sm_point n) a) i := by simp [h, fnctr]
+    _ = (inst.intrprt sm_one) (A0_iso.invFun 0) i := by congr; ext j; nomatch j
+    _ = A0toB1_iso (intrprt sm_one) := by rw [Fin.fin_one_eq_zero i]; unfold A0toB1_iso; unfold A1_iso; rfl
+    _ = 1 := rfl
+
+
 
 noncomputable instance {A : Type _} [CinftyRing A] : Add A := {
   add := A2toB1_iso (intrprt sm_add)
@@ -231,11 +261,11 @@ lemma test {A : Type _} [CinftyRing A] : ∀ a : A, a + 0 = a := by
     a + b = A2toB1_iso (intrprt sm_add) a b := rfl
     _ = A2toB1_iso (intrprt (sm_add ⋄ sm_twist)) a b := by nth_rw 1 [h]
     _ = A2toB1_iso (intrprt sm_add ∘ intrprt sm_twist) a b := by rw[fnctr]
-    _ = (fin1_iso.toFun ∘ (intrprt sm_add ∘ intrprt sm_twist) ∘ fin2_iso.invFun) ⟨a, b⟩ := by unfold A2toB1_iso; unfold fin1_iso; unfold fun_of_cart_prod_iso; simp
-    _ = ((fin1_iso.toFun ∘ intrprt sm_add ∘ fin2_iso.invFun) ∘ (fin2_iso.toFun ∘ intrprt sm_twist ∘ fin2_iso.invFun)) ⟨a, b⟩ := by simp [fin2_iso.left_inv]
-    _ = (fin1_iso.toFun ∘ intrprt sm_add ∘ fin2_iso.invFun) ((fin2_iso.toFun ∘ intrprt sm_twist ∘ fin2_iso.invFun) ⟨a, b⟩) := rfl
-    _ = (fin1_iso.toFun ∘ intrprt sm_add ∘ fin2_iso.invFun) ⟨b, a⟩ := by congr; unfold fin2_iso; simp
-    _ = A2toB1_iso (intrprt sm_add) b a := by unfold A2toB1_iso; unfold fin1_iso; unfold fun_of_cart_prod_iso; simp
+    _ = (A1_iso.toFun ∘ (intrprt sm_add ∘ intrprt sm_twist) ∘ A2_iso.invFun) ⟨a, b⟩ := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+    _ = ((A1_iso.toFun ∘ intrprt sm_add ∘ A2_iso.invFun) ∘ (A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun)) ⟨a, b⟩ := by simp [A2_iso.left_inv]
+    _ = (A1_iso.toFun ∘ intrprt sm_add ∘ A2_iso.invFun) ((A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun) ⟨a, b⟩) := rfl
+    _ = (A1_iso.toFun ∘ intrprt sm_add ∘ A2_iso.invFun) ⟨b, a⟩ := by congr; unfold A2_iso; simp
+    _ = A2toB1_iso (intrprt sm_add) b a := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
     _ = b + a := rfl
   -/
 
@@ -252,7 +282,7 @@ noncomputable instance {A : Type _} [CinftyRing A] : AddZeroClass A := {
 }
 
 noncomputable instance {A : Type _} [CinftyRing A] : Neg A := {
-  neg := fin1_iso.toFun ∘ (intrprt sm_neg) ∘ fin1_iso.invFun
+  neg := A1_iso.toFun ∘ (intrprt sm_neg) ∘ A1_iso.invFun
 }
 
 noncomputable instance {A : Type _} [CinftyRing A] : AddCommGroup A := {
@@ -269,11 +299,11 @@ noncomputable instance {A : Type _} [CinftyRing A] : AddCommGroup A := {
           a + b = A2toB1_iso (intrprt sm_add) a b := rfl
           _ = A2toB1_iso (intrprt (sm_add ⋄ sm_twist)) a b := by nth_rw 1 [h]
           _ = A2toB1_iso (intrprt sm_add ∘ intrprt sm_twist) a b := by rw[fnctr]
-          _ = (fin1_iso.toFun ∘ (intrprt sm_add ∘ intrprt sm_twist) ∘ fin2_iso.invFun) ⟨a, b⟩ := by unfold A2toB1_iso; unfold fin1_iso; unfold fun_of_cart_prod_iso; simp
-          _ = ((fin1_iso.toFun ∘ intrprt sm_add ∘ fin2_iso.invFun) ∘ (fin2_iso.toFun ∘ intrprt sm_twist ∘ fin2_iso.invFun)) ⟨a, b⟩ := by simp [fin2_iso.left_inv]
-          _ = (fin1_iso.toFun ∘ intrprt sm_add ∘ fin2_iso.invFun) ((fin2_iso.toFun ∘ intrprt sm_twist ∘ fin2_iso.invFun) ⟨a, b⟩) := rfl
-          _ = (fin1_iso.toFun ∘ intrprt sm_add ∘ fin2_iso.invFun) ⟨b, a⟩ := by congr; unfold fin2_iso; simp
-          _ = A2toB1_iso (intrprt sm_add) b a := by unfold A2toB1_iso; unfold fin1_iso; unfold fun_of_cart_prod_iso; simp
+          _ = (A1_iso.toFun ∘ (intrprt sm_add ∘ intrprt sm_twist) ∘ A2_iso.invFun) ⟨a, b⟩ := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+          _ = ((A1_iso.toFun ∘ intrprt sm_add ∘ A2_iso.invFun) ∘ (A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun)) ⟨a, b⟩ := by simp [A2_iso.left_inv]
+          _ = (A1_iso.toFun ∘ intrprt sm_add ∘ A2_iso.invFun) ((A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun) ⟨a, b⟩) := rfl
+          _ = (A1_iso.toFun ∘ intrprt sm_add ∘ A2_iso.invFun) ⟨b, a⟩ := by congr; unfold A2_iso; simp
+          _ = A2toB1_iso (intrprt sm_add) b a := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
           _ = b + a := rfl
 }
 
@@ -291,11 +321,11 @@ noncomputable instance {A: Type _} [CinftyRing A] : CommRing A := {
         a * b = A2toB1_iso (intrprt sm_mul) a b := rfl
         _ = A2toB1_iso (intrprt (sm_mul ⋄ sm_twist)) a b := by nth_rw 1 [h]
         _ = A2toB1_iso (intrprt sm_mul ∘ intrprt sm_twist) a b := by rw[fnctr]
-        _ = (fin1_iso.toFun ∘ (intrprt sm_mul ∘ intrprt sm_twist) ∘ fin2_iso.invFun) ⟨a, b⟩ := by unfold A2toB1_iso; unfold fin1_iso; unfold fun_of_cart_prod_iso; simp
-        _ = ((fin1_iso.toFun ∘ intrprt sm_mul ∘ fin2_iso.invFun) ∘ (fin2_iso.toFun ∘ intrprt sm_twist ∘ fin2_iso.invFun)) ⟨a, b⟩ := by simp [fin2_iso.left_inv]
-        _ = (fin1_iso.toFun ∘ intrprt sm_mul ∘ fin2_iso.invFun) ((fin2_iso.toFun ∘ intrprt sm_twist ∘ fin2_iso.invFun) ⟨a, b⟩) := rfl
-        _ = (fin1_iso.toFun ∘ intrprt sm_mul ∘ fin2_iso.invFun) ⟨b, a⟩ := by congr; unfold fin2_iso; simp
-        _ = A2toB1_iso (intrprt sm_mul) b a := by unfold A2toB1_iso; unfold fin1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = (A1_iso.toFun ∘ (intrprt sm_mul ∘ intrprt sm_twist) ∘ A2_iso.invFun) ⟨a, b⟩ := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = ((A1_iso.toFun ∘ intrprt sm_mul ∘ A2_iso.invFun) ∘ (A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun)) ⟨a, b⟩ := by simp [A2_iso.left_inv]
+        _ = (A1_iso.toFun ∘ intrprt sm_mul ∘ A2_iso.invFun) ((A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun) ⟨a, b⟩) := rfl
+        _ = (A1_iso.toFun ∘ intrprt sm_mul ∘ A2_iso.invFun) ⟨b, a⟩ := by congr; unfold A2_iso; simp
+        _ = A2toB1_iso (intrprt sm_mul) b a := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
         _ = b * a := rfl
   zero_mul := sorry
   mul_zero := sorry
