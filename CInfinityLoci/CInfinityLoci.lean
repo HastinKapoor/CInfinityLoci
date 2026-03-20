@@ -397,7 +397,7 @@ noncomputable instance {A : Type _} [CinftyRing A] : CommRing A := {
   mul_one := mul_one_helper
   left_distrib := sorry
   right_distrib := sorry
-  add_left_neg := sorry
+  add_left_neg := add_left_neg_helper
 }
 
 -- theorem saying that every C^∞-Ring is an ℝ-algebra
