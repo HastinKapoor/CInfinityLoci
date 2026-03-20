@@ -241,59 +241,54 @@ noncomputable instance {A : Type _} [CinftyRing A] : Mul A := {
   mul := A2toB1_iso (intrprt sm_mul)
 }
 
-noncomputable instance {A : Type _} [CinftyRing A] : AddZeroClass A := {
-  zero_add := by
-    intro a
-    let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 1 => (π (0 : Fin 1)) | 0 => (const_zero 1))
-    calc
-      0 + a = A2toB1_iso (intrprt sm_add) 0 a := rfl
-      _ = A1_iso.toFun (intrprt sm_add (A2_iso.invFun ⟨0, a⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
-      _ = A1_iso.toFun (intrprt sm_add (intrprt F (A1_iso.invFun a))) := by
-              congr; apply congrArg
-              unfold A1_iso; unfold A2_iso
-              simp [F]
-              ext i
-              fin_cases i <;> simp [proj]
-      _ = A1_iso.toFun (intrprt (sm_add ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
-      _ = A1_iso.toFun (intrprt (π (0 : Fin 1)) (A1_iso.invFun a)) := by
-              congr; apply congrArg₂
-              ext _ i
-              simp [F]
-              unfold sm_add; unfold π; unfold sm_tuple; unfold const_zero
-              rw [Fin.fin_one_eq_zero i]
-              simp; rfl
-      _ = a := by rw [proj]; unfold A1_iso; simp
-  add_zero := by
-    intro a
-    let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 0 => (π (0 : Fin 1)) | 1 => (const_zero 1))
-    calc
-      a + 0 = A2toB1_iso (intrprt sm_add) a 0 := rfl
-      _ = A1_iso.toFun (intrprt sm_add (A2_iso.invFun ⟨a, 0⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
-      _ = A1_iso.toFun (intrprt sm_add (intrprt F (A1_iso.invFun a))) := by
-              congr; apply congrArg
-              unfold A1_iso; unfold A2_iso
-              simp [F]
-              ext i
-              fin_cases i <;> simp [proj]
-      _ = A1_iso.toFun (intrprt (sm_add ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
-      _ = A1_iso.toFun (intrprt (π (0 : Fin 1)) (A1_iso.invFun a)) := by
-              congr; apply congrArg₂
-              ext _ i
-              simp [F]
-              unfold sm_add; unfold π; unfold sm_tuple; unfold const_zero
-              rw [Fin.fin_one_eq_zero i]
-              simp; rfl
-      _ = a := by rw [proj]; unfold A1_iso; simp
-}
-
 noncomputable instance {A : Type _} [CinftyRing A] : Neg A := {
   neg := A1_iso.toFun ∘ (intrprt sm_neg) ∘ A1_iso.invFun
 }
 
 noncomputable instance {A : Type _} [CinftyRing A] : AddCommGroup A := {
   add_assoc := sorry
-  zero_add := sorry
-  add_zero := sorry
+  zero_add := by
+      intro a
+      let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 1 => (π (0 : Fin 1)) | 0 => (const_zero 1))
+      calc
+        0 + a = A2toB1_iso (intrprt sm_add) 0 a := rfl
+        _ = A1_iso.toFun (intrprt sm_add (A2_iso.invFun ⟨0, a⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = A1_iso.toFun (intrprt sm_add (intrprt F (A1_iso.invFun a))) := by
+                congr; apply congrArg
+                unfold A1_iso; unfold A2_iso
+                simp [F]
+                ext i
+                fin_cases i <;> simp [proj]
+        _ = A1_iso.toFun (intrprt (sm_add ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
+        _ = A1_iso.toFun (intrprt (π (0 : Fin 1)) (A1_iso.invFun a)) := by
+                congr; apply congrArg₂
+                ext _ i
+                simp [F]
+                unfold sm_add; unfold π; unfold sm_tuple; unfold const_zero
+                rw [Fin.fin_one_eq_zero i]
+                simp; rfl
+        _ = a := by rw [proj]; unfold A1_iso; simp
+  add_zero := by
+      intro a
+      let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 0 => (π (0 : Fin 1)) | 1 => (const_zero 1))
+      calc
+        a + 0 = A2toB1_iso (intrprt sm_add) a 0 := rfl
+        _ = A1_iso.toFun (intrprt sm_add (A2_iso.invFun ⟨a, 0⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = A1_iso.toFun (intrprt sm_add (intrprt F (A1_iso.invFun a))) := by
+                congr; apply congrArg
+                unfold A1_iso; unfold A2_iso
+                simp [F]
+                ext i
+                fin_cases i <;> simp [proj]
+        _ = A1_iso.toFun (intrprt (sm_add ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
+        _ = A1_iso.toFun (intrprt (π (0 : Fin 1)) (A1_iso.invFun a)) := by
+                congr; apply congrArg₂
+                ext _ i
+                simp [F]
+                unfold sm_add; unfold π; unfold sm_tuple; unfold const_zero
+                rw [Fin.fin_one_eq_zero i]
+                simp; rfl
+        _ = a := by rw [proj]; unfold A1_iso; simp
   nsmul := nsmulRec
   zsmul := zsmulRec
   add_left_neg := sorry
@@ -317,23 +312,6 @@ noncomputable instance {A : Type _} [CinftyRing A] : AddCommGroup A := {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- theorem saying that every C^∞-Ring is a commutative (unital) ring
 noncomputable instance {A: Type _} [CinftyRing A] : CommRing A := {
   zsmul := zsmulRec
@@ -350,10 +328,90 @@ noncomputable instance {A: Type _} [CinftyRing A] : CommRing A := {
         _ = (A1_iso.toFun ∘ intrprt sm_mul ∘ A2_iso.invFun) ⟨b, a⟩ := by congr; unfold A2_iso; simp
         _ = A2toB1_iso (intrprt sm_mul) b a := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
         _ = b * a := rfl
-  zero_mul := sorry
-  mul_zero := sorry
-  one_mul := sorry
-  mul_one := sorry
+  zero_mul := by
+      intro a
+      let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 1 => (π (0 : Fin 1)) | 0 => (const_zero 1))
+      calc
+        0 * a = A2toB1_iso (intrprt sm_mul) 0 a := rfl
+        _ = A1_iso.toFun (intrprt sm_mul (A2_iso.invFun ⟨0, a⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = A1_iso.toFun (intrprt sm_mul (intrprt F (A1_iso.invFun a))) := by
+                congr; apply congrArg
+                unfold A1_iso; unfold A2_iso
+                simp [F]
+                ext i
+                fin_cases i <;> simp [proj]
+        _ = A1_iso.toFun (intrprt (sm_mul ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
+        _ = A1_iso.toFun (intrprt (const_zero 1) (A1_iso.invFun a)) := by
+                congr; apply congrArg₂
+                ext _ i
+                simp [F]
+                unfold sm_mul; unfold π; unfold sm_tuple; unfold const_zero
+                rw [Fin.fin_one_eq_zero i]
+                simp; rfl
+        _ = 0 := by unfold A1_iso; simp
+  mul_zero := by
+      intro a
+      let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 0 => (π (0 : Fin 1)) | 1 => (const_zero 1))
+      calc
+        a * 0 = A2toB1_iso (intrprt sm_mul) a 0 := rfl
+        _ = A1_iso.toFun (intrprt sm_mul (A2_iso.invFun ⟨a, 0⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = A1_iso.toFun (intrprt sm_mul (intrprt F (A1_iso.invFun a))) := by
+                congr; apply congrArg
+                unfold A1_iso; unfold A2_iso
+                simp [F]
+                ext i
+                fin_cases i <;> simp [proj]
+        _ = A1_iso.toFun (intrprt (sm_mul ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
+        _ = A1_iso.toFun (intrprt (const_zero 1) (A1_iso.invFun a)) := by
+                congr; apply congrArg₂
+                ext _ i
+                simp [F]
+                unfold sm_mul; unfold π; unfold sm_tuple; unfold const_zero
+                rw [Fin.fin_one_eq_zero i]
+                simp; rfl
+        _ = 0 := by unfold A1_iso; simp
+  one_mul := by
+      intro a
+      let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 1 => (π (0 : Fin 1)) | 0 => (const_one 1))
+      calc
+        1 * a = A2toB1_iso (intrprt sm_mul) 1 a := rfl
+        _ = A1_iso.toFun (intrprt sm_mul (A2_iso.invFun ⟨1, a⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = A1_iso.toFun (intrprt sm_mul (intrprt F (A1_iso.invFun a))) := by
+                congr; apply congrArg
+                unfold A1_iso; unfold A2_iso
+                simp [F]
+                ext i
+                fin_cases i <;> simp [proj]
+        _ = A1_iso.toFun (intrprt (sm_mul ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
+        _ = A1_iso.toFun (intrprt (π (0 : Fin 1)) (A1_iso.invFun a)) := by
+                congr; apply congrArg₂
+                ext _ i
+                simp [F]
+                unfold sm_mul; unfold π; unfold sm_tuple; unfold const_one
+                rw [Fin.fin_one_eq_zero i]
+                simp; rfl
+        _ = a := by unfold A1_iso; simp [proj]
+  mul_one := by
+      intro a
+      let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 0 => (π (0 : Fin 1)) | 1 => (const_one 1))
+      calc
+        a * 1 = A2toB1_iso (intrprt sm_mul) a 1 := rfl
+        _ = A1_iso.toFun (intrprt sm_mul (A2_iso.invFun ⟨a, 1⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+        _ = A1_iso.toFun (intrprt sm_mul (intrprt F (A1_iso.invFun a))) := by
+                congr; apply congrArg
+                unfold A1_iso; unfold A2_iso
+                simp [F]
+                ext i
+                fin_cases i <;> simp [proj]
+        _ = A1_iso.toFun (intrprt (sm_mul ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
+        _ = A1_iso.toFun (intrprt (π (0 : Fin 1)) (A1_iso.invFun a)) := by
+                congr; apply congrArg₂
+                ext _ i
+                simp [F]
+                unfold sm_mul; unfold π; unfold sm_tuple; unfold const_one
+                rw [Fin.fin_one_eq_zero i]
+                simp; rfl
+        _ = a := by unfold A1_iso; simp [proj]
   left_distrib := sorry
   right_distrib := sorry
   add_left_neg := sorry
