@@ -119,8 +119,7 @@ theorem free_CinftyRing (d : ℕ) : ∀ {A : Type _} [CinftyRing A] (a : A^d), �
     ext g
     let p : C^∞(ℝ^d)^d := (fun i => π i)
     calc
-      Ψ g = Ψ (intrprt g p 0) := by congr; ext; simp [intrprt]; rfl
-      _ = (Ψ ∘ intrprt g p) 0 := rfl
+      Ψ g = (Ψ ∘ intrprt g p) 0 := by congr; ext; simp [intrprt]; rfl
       _ = intrprt g (Ψ ∘ p) 0 := by rw [Ψ.compat]
       _ = intrprt g a 0 := by congr; ext; exact h _
 
