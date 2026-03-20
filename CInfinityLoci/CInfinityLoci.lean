@@ -64,11 +64,29 @@ attribute [coe] CinftyRingHom.toFun
 def sm_duple {n m k : ℕ} (F : C^∞(ℝ^n, ℝ^m)) (G : C^∞(ℝ^n, ℝ^k)) : C^∞(ℝ^n, ℝ^(m+k)) :=
   sorry
 
+
+lemma linarith_lemma {n m k : ℕ} : k < n + m → ¬ (k < n) → k - n < m := by
+  intro h1 h2
+  have h3 : k ≥ n := by linarith
+  zify [h1, h3]
+  linarith
+
 def sm_prod {n m j k : ℕ} (F : C^∞(ℝ^n, ℝ^j)) (G : C^∞(ℝ^m, ℝ^k)) : C^∞(ℝ^(n+m), ℝ^(j+k)) := by
-  sorry
+  let H : (Fin (n+m) → ℝ) → (Fin (j+k) → ℝ) := by
+      intro x i
+      let x0 : (Fin n → ℝ) := fun l => x ⟨l.1, by linarith [l.2]⟩
+      let x1 : (Fin m → ℝ) := fun l => x ⟨l.1 + n, by linarith [l.2]⟩
+      by_cases h : i < j
+      · exact F x0 ⟨i.1, h⟩
+      · exact G x1 ⟨i.1 - j, linarith_lemma i.2 h⟩
+  use H
+  apply contDiff_euclidean.2
+  intro i
+  by_cases h : i < j
+  · sorry
+  · sorry
+
 -/
-
-
 
 
 def sm_tuple {n m : ℕ} (g : C^∞(ℝ^m)^n) : C^∞(ℝ^m, ℝ^n) := by
@@ -318,14 +336,6 @@ noncomputable instance {A : Type _} [CinftyRing A] : AddCommGroup A := {
 
 
 
-
-
-
-
-
-
-
-
 noncomputable instance {A : Type _} [CinftyRing A] : CommMagma A where
   mul_comm := by
     intro a b
@@ -333,7 +343,8 @@ noncomputable instance {A : Type _} [CinftyRing A] : CommMagma A where
     calc
       a * b = A2toB1_iso (intrprt sm_mul) a b := rfl
       _ = A2toB1_iso (intrprt sm_mul ∘ intrprt sm_twist) a b := by nth_rw 1 [h]; rw[fnctr]
-      _ = (A1_iso.toFun ∘ (intrprt sm_mul ∘ intrprt sm_twist) ∘ A2_iso.invFun) ⟨a, b⟩ := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+      _ = (A1_iso.toFun ∘ (intrprt sm_mul ∘ intrprt sm_twist) ∘ A2_iso.invFun) ⟨a, b⟩ := by
+            unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
       _ = ((A1_iso.toFun ∘ intrprt sm_mul ∘ A2_iso.invFun) ∘ (A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun)) ⟨a, b⟩ := by simp [A2_iso.left_inv]
       _ = (A1_iso.toFun ∘ intrprt sm_mul ∘ A2_iso.invFun) ((A2_iso.toFun ∘ intrprt sm_twist ∘ A2_iso.invFun) ⟨a, b⟩) := rfl
       _ = (A1_iso.toFun ∘ intrprt sm_mul ∘ A2_iso.invFun) ⟨b, a⟩ := by congr; unfold A2_iso; simp
@@ -346,7 +357,8 @@ lemma mul_zero_helper {A : Type _} [CinftyRing A] : ∀ a : A, a * 0 = 0 := by
   let F : C^∞(ℝ^1, ℝ^2) := sm_tuple (match · with | 0 => π 0 | 1 => (const_zero 1))
   calc
     a * 0 = A2toB1_iso (intrprt sm_mul) a 0 := rfl
-    _ = A1_iso.toFun (intrprt sm_mul (A2_iso.invFun ⟨a, 0⟩)) := by unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
+    _ = A1_iso.toFun (intrprt sm_mul (A2_iso.invFun ⟨a, 0⟩)) := by
+            unfold A2toB1_iso; unfold A1_iso; unfold fun_of_cart_prod_iso; simp
     _ = A1_iso.toFun (intrprt sm_mul (intrprt F (A1_iso.invFun a))) := by
             congr; apply congrArg
             unfold A1_iso; unfold A2_iso
@@ -377,7 +389,7 @@ lemma mul_one_helper {A : Type _} [CinftyRing A] : ∀ a : A, a * 1 = a := by
             ext i
             fin_cases i <;> simp [proj]
     _ = A1_iso.toFun (intrprt (sm_mul ⋄ F) (A1_iso.invFun a)) := by simp [fnctr]
-    _ = A1_iso.toFun (intrprt (π (0 : Fin 1)) (A1_iso.invFun a)) := by
+    _ = A1_iso.toFun (intrprt (π 0) (A1_iso.invFun a)) := by
             congr; apply congrArg₂
             ext _ i
             simp [F]
