@@ -336,6 +336,9 @@ noncomputable instance {A : Type _} [CinftyRing A] : AddCommGroup A := {
 
 
 
+
+
+
 noncomputable instance {A : Type _} [CinftyRing A] : CommMagma A where
   mul_comm := by
     intro a b
