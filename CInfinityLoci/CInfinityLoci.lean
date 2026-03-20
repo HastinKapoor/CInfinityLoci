@@ -84,12 +84,8 @@ lemma intrprt_tuple {n m : ℕ} {A : Type _} [CinftyRing A] (g : C^∞(ℝ^m)^n)
       intrprt (sm_tuple g) = fun (a : (Fin m → A)) i => (intrprt (g i) a) 0 := by
   ext a i
   let G := sm_tuple g
-  calc intrprt (sm_tuple g) a i = intrprt G a i := rfl
-    _ = (fun b (j : Fin n) => b i) ((intrprt G) a) i := rfl
-    _ = (intrprt (π i)) (intrprt G a) 0 := by rw[proj i]
-    _ = (intrprt (π i) ∘ intrprt G) a 0 := rfl
-    _ = (intrprt (π i ⋄ G)) a 0 := by rw[fnctr]
-    _ = (intrprt (g i)) a 0 := by congr; exact proj_tuple g i
+  calc intrprt (sm_tuple g) a i = (intrprt (π i ⋄ G)) a 0 := by simp [proj i, fnctr]
+    _ = (intrprt (g i)) a 0 := by rw [proj_tuple g i]
 
 
 
@@ -98,7 +94,7 @@ lemma intrprt_tuple {n m : ℕ} {A : Type _} [CinftyRing A] (g : C^∞(ℝ^m)^n)
 -- Shows that C^∞(ℝ^d) is a C^∞-Ring
 instance {d : ℕ} : CinftyRing C^∞(ℝ^d) where
   intrprt := by
-    intro n _ F g i
+    intro _ _ F g i
     exact (π i) ⋄ F ⋄ (sm_tuple g)
   fnctr := by intros; rfl
   proj := by
@@ -215,10 +211,19 @@ noncomputable instance {A : Type _} [CinftyRing A] : Zero A := {
 }
 
 
-lemma test {A : Type _} [CinftyRing A] : ∀ a : A, a + 0 = a := by
-  intro a
-  show @Zero.zero A _
-  unfold Add.add
+lemma test {A : Type _} [CinftyRing A] : ∀ a b : A, a + b = b + a := by
+  intro a b
+  have h : sm_add = sm_add ⋄ sm_twist := by ext; simp [sm_add, sm_twist, sm_tuple, π]; linarith
+  calc
+    a + b = A2toB1_iso (intrprt sm_add) a b := rfl
+    _ = A2toB1_iso (intrprt (sm_add ⋄ sm_twist)) a b := by rw[h]
+    _ = A2toB1_iso (intrprt sm_add ∘ intrprt sm_twist) a b := by rw[fnctr]
+    _ = (fin1_iso.toFun ∘ (intrprt sm_add ∘ intrprt sm_twist) ∘ fin2_iso.invFun) ⟨a, b⟩ := by sorry
+    _ = ((fin1_iso.toFun ∘ intrprt sm_add ∘ fin2_iso.invFun) ∘ (fin2_iso.toFun ∘ intrprt sm_twist ∘ fin2_iso.invFun)) ⟨a, b⟩ := by sorry
+
+
+
+
 
 
 
@@ -257,7 +262,7 @@ instance {A: Type u} [CinftyRing.{u} A] : CommRing.{u} A := {
   mul := A2toB1_iso (intrprt sm_mul)
   mul_assoc := sorry
   mul_comm :=
-              have h : sm_mul = sm_mul ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_mul]; linarith
+              have h : sm_mul = sm_mul ⋄ sm_twist := by unfold comp; ext; simp [sm_twist, sm_mul, sm_tuple, π]; exact Real.commRing.proof_25 _ _
               /-
               have h2 : (intrprt (sm_mul ⋄ sm_twist) = intrprt sm_mul ∘ intrprt sm_twist) := fnctr sm_twist sm_mul
               -/
