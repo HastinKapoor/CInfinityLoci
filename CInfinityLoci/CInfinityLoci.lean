@@ -84,8 +84,8 @@ lemma intrprt_tuple {n m : ℕ} {A : Type _} [CinftyRing A] (g : C^∞(ℝ^m)^n)
       intrprt (sm_tuple g) = fun (a : (Fin m → A)) i => (intrprt (g i) a) 0 := by
   ext a i
   let G := sm_tuple g
-  calc intrprt (sm_tuple g) a i = (intrprt (π i ⋄ G)) a 0 := by simp [proj i, fnctr]
-    _ = (intrprt (g i)) a 0 := by rw [proj_tuple g i]
+  calc intrprt (sm_tuple g) a i = intrprt (π i ⋄ G) a 0 := by simp [proj i, fnctr]
+    _ = intrprt (g i) a 0 := by rw [proj_tuple g i]
 
 
 
@@ -108,8 +108,7 @@ theorem free_CinftyRing (d : ℕ) : ∀ {A : Type _} [CinftyRing A] (a : A^d), �
   intro A _ a
   let Φ : CinftyRingHom C^∞(ℝ^d) A := by
     use fun f => intrprt f a 0
-    intro n m _ _
-    ext
+    intros; ext
     simp [intrprt, fnctr, proj]
     rfl
   use Φ
